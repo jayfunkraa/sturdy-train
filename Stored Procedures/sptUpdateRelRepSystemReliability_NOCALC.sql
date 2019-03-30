@@ -11,8 +11,6 @@ GO
 
 -- =============================================
 -- Author:		Jamie Hanna
--- Create date: 
--- Description:	
 -- =============================================
 ALTER PROCEDURE [dbo].[sptUpdateRelRepSystemReliability_NOCALC] 
 	
@@ -23,53 +21,77 @@ AS
 BEGIN
 	SET NOCOUNT ON;
 
-	INSERT INTO tRelRepSystemReliability (
-											tReg_ID,
-											tReliabilityFleet_ID,
-											tATA_ID,
-											tDefect_ID,
-											DefectNo,
-											DefectDate,
-											Description,
-											NonChargeable,
-											ATA,
-											ATADescription,
-											Registration,
-											CarriedOutText,
-											Quarter,
-											Closed,
-											OperatorCode,
-											Base,
-											Model,
-											Cycles
-										 )
-	SELECT	tDefect.tReg_ID,
+	DECLARE @Start datetime = GETUTCDATE()
+	DECLARE @TempTable TABLE 
+	(
+		[Lock] [bit] NOT NULL,
+		[tReliabilityFleet_ID] [int] NULL,
+		[tDefect_ID] [int] NOT NULL,
+		[tRegJourney_ID] [int] NOT NULL,
+		[DefectNo] [nvarchar](50) NULL,
+		[DefectDate] [datetime] NULL,
+		[DefectDescription] [nvarchar](4000) NULL,
+		[NonChargeable] [bit] NULL,
+		[tATA_ID] [int] NULL,
+		[ATADescription] [nvarchar](4000) NULL,
+		[tReg_ID] [INT] NULL,
+		[CarriedOutText] [nvarchar](4000) NULL,
+		[MonthKey] [nvarchar](10) NULL,
+		[Quarter] [nvarchar](10) NULL,
+		[tDefectStatus_ID] [int] NULL,
+		[aOperator_ID] [nvarchar](10) NULL,
+		[uRALBase_ID] [int] NULL,
+		[tModel_ID] [INT] NULL,
+		[Cycles] [decimal](18, 0) NULL
+	)
+
+	INSERT INTO @TempTable 
+	(
+		Lock,
+		tReliabilityFleet_ID,
+		tDefect_ID,
+		tRegJourney_ID,
+		DefectNo,
+		DefectDate,
+		DefectDescription,
+		NonChargeable,
+		tATA_ID,
+		ATADescription,
+		tReg_ID,
+		CarriedOutText,
+		MonthKey,
+		Quarter,
+		tDefectStatus_ID,
+		aOperator_ID,
+		uRALBase_ID,
+		tModel_ID,
+		Cycles
+	)
+
+	SELECT	1,
 			tReg.tReliabilityFleet_ID,
-			tDefect.tATA_ID,
 			tDefect.ID,
+			tDefect.tRegJourney_ID,
 			tDefect.DefectItemNo,
 			tDefect.CreatedDate,
 			tDefect.Description,
-			0 as NonChargeable,
-			tATA.ATA,
+			tDefect.ExcludeReliability,
+			tATA.ID,
 			tATA.Description,
-			tReg.Reg,
+			tReg.ID,
 			ISNULL(ClosureTask.CarriedOutText,''),
-			--CAST(DATEPART(mm,tDefect.CreatedDate) AS nvarchar) + '-' + RIGHT(CAST(DATEPART(yy,tDefect.CreatedDate) AS nvarchar),2) AS MonthKey,
-			'Q' + CAST(DATEPART(q,tDefect.CreatedDate) AS nvarchar) AS Quarter,
-			tDefect.Closed,
-			aOperator.OperatorCode,
-			ReportedBase.RALBase,
-			tModel.Model,
+			UPPER(LEFT(CAST(DATENAME(mm,GETDATE()) AS nvarchar),3)) + '-' + RIGHT(CAST(DATEPART(yy,GETDATE()) AS nvarchar),2),
+			'Q' + CAST(DATEPART(q,tDefect.CreatedDate) AS nvarchar),
+			tDefect.tDefectStatus_ID,
+			tReg.aOperator_ID,
+			tDefect.uRALBase_IDReportedFrom,
+			tAsset.tModel_ID,
 			usage.Usage
 
 	FROM	tDefect
 	JOIN	tATA ON tDefect.tATA_ID = tATA.ID
 	JOIN	tReg ON tDefect.tReg_ID = tReg.ID
-	JOIN	aOperator ON tReg.aOperator_ID = aOperator.ID
-	JOIN	uRALBase ReportedBase ON tDefect.uRALBase_IDReportedFrom = ReportedBase.ID
 	JOIN	tAsset ON tReg.tAsset_ID = tAsset.ID
-	JOIN	tModel ON tAsset.tModel_ID = tModel.ID
 	LEFT JOIN	sOrderTask ClosureTask ON tDefect.sOrderTask_IDClosedAgainst= ClosureTask.ID
 	JOIN	(
 				SELECT	tDefect.ID,
@@ -81,29 +103,86 @@ BEGIN
 				GROUP BY tDefect.ID
 			) usage ON tDefect.ID = usage.ID
 
-	EXCEPT
+	DECLARE @IdBeforeUpdate int = (SELECT IDENT_CURRENT('tRelRepSystemReliability'))
+	DECLARE @ErrorMessage nvarchar (200) = 'Updated Succesfully'
+	BEGIN TRANSACTION
+	BEGIN TRY
+			
+		DELETE FROM tRelRepSystemReliability
+		WHERE		Lock = 0
 
-	SELECT	tReg_ID,
+		INSERT INTO tRelRepSystemReliability
+		(
+			Lock,
 			tReliabilityFleet_ID,
-			tATA_ID,
 			tDefect_ID,
-			DefectNo COLLATE Latin1_General_BIN,
+			tRegJourney_ID,
+			DefectNo,
 			DefectDate,
-			Description COLLATE Latin1_General_BIN,
+			DefectDescription,
 			NonChargeable,
-			ATA COLLATE Latin1_General_BIN,
-			ATADescription COLLATE Latin1_General_BIN,
-			Registration COLLATE Latin1_General_BIN,
-			CarriedOutText COLLATE Latin1_General_BIN,
-			Quarter COLLATE Latin1_General_BIN,
-			Closed,
-			OperatorCode COLLATE Latin1_General_BIN,
-			Base COLLATE Latin1_General_BIN,
-			Model COLLATE Latin1_General_BIN,
+			tATA_ID,
+			ATADescription,
+			tReg_ID,
+			CarriedOutText,
+			MonthKey,
+			Quarter,
+			tDefectStatus_ID,
+			aOperator_ID,
+			uRALBase_ID,
+			tModel_ID,
 			Cycles
+		)
 
-	FROM	tRelRepSystemReliability
+		SELECT	Lock,
+				tReliabilityFleet_ID,
+				tDefect_ID,
+				tRegJourney_ID,
+				DefectNo,
+				DefectDate,
+				DefectDescription,
+				NonChargeable,
+				tATA_ID,
+				ATADescription,
+				tReg_ID,
+				CarriedOutText,
+				MonthKey,
+				Quarter,
+				tDefectStatus_ID,
+				aOperator_ID,
+				uRALBase_ID,
+				tModel_ID,
+				Cycles
+		FROM 	@TempTable
+		WHERE	tDefect_ID NOT IN (SELECT tDefect_ID FROM tRelRepSystemReliability)
 
+	COMMIT TRANSACTION
+	END TRY
+	BEGIN CATCH
+		ROLLBACK TRANSACTION
+		SET @ErrorMessage = 'Update Failed'
+	END CATCH
+
+	INSERT INTO tRelRepUpdateLog (
+					UpdateStart,
+					UpdateEnd,
+					RecordTimeStamp,
+					RecordTimeStampCreated,
+					ProcessName,
+					NumberOFRecords,
+					MaxIDBaseTable,
+					UpdateLog
+				)
+		VALUES (
+					@Start,
+					GETUTCDATE(),
+					GETDATE(),
+					GETDATE(),
+					'tUpdateRelRepSystemReliability',
+					ISNULL((SELECT IDENT_CURRENT('tRelRepSystemReliability')) - @IdBeforeUpdate ,0),
+					ISNULL( (SELECT MAX(ID) FROM tDefect), 0),
+					@ErrorMessage
+			)
 END
 GO
 
