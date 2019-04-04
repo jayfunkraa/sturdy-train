@@ -1,6 +1,7 @@
-USE [TEST]
+/****** Object:  UserDefinedFunction [dbo].[tRelRepGetDefectInfoForReg]    Script Date: 06/03/2019 14:32:48 ******/
+IF OBJECT_ID('dbo.tRelRepGetDefectInfoForReg', 'U') IS NOT NULL
+DROP FUNCTION dbo.tRelRepGetDefectInfoForReg
 GO
-
 /****** Object:  UserDefinedFunction [dbo].[tRelRepGetDefectInfoForReg]    Script Date: 06/03/2019 14:32:48 ******/
 SET ANSI_NULLS ON
 GO
@@ -10,10 +11,8 @@ GO
 
 -- =============================================
 -- Author:		Jamie Hanna
--- Create date: 
--- Description:	
 -- =============================================
-ALTER FUNCTION [dbo].[tRelRepGetDefectInfoForReg] 
+CREATE FUNCTION [dbo].[tRelRepGetDefectInfoForReg] 
 (
 	@Reg_ID int, 
 	@ATA_ID int

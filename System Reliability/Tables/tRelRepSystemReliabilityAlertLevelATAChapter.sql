@@ -1,5 +1,6 @@
 /****** Object:  Table [dbo].[tRelRepSystemReliabilityAlertLevelATAChapter]    Script Date: 06/03/2019 14:47:47 ******/
-DROP TABLE [dbo].[tRelRepSystemReliabilityAlertLevelATAChapter]
+IF OBJECT_ID('dbo.tRelRepSystemReliabilityAlertLevelATAChapter', 'U') IS NOT NULL
+DROP TABLE dbo.tRelRepSystemReliabilityFleetAlertLevelATAChapter
 GO
 
 /****** Object:  Table [dbo].[tRelRepSystemReliabilityAlertLevelATAChapter]    Script Date: 06/03/2019 14:47:47 ******/

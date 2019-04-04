@@ -1,4 +1,8 @@
 /****** Object:  StoredProcedure [dbo].[sptUpdateRelRepSystemReliabilityAlertLevelATASystem]    Script Date: 06/03/2019 14:35:37 ******/
+IF OBJECT_ID('dbo.sptUpdateRelRepSystemReliabilityAlertLevelATASystem', 'U') IS NOT NULL
+DROP PROCEDURE dbo.sptUpdateRelRepSystemReliabilityAlertLevelATASystem
+GO
+/****** Object:  StoredProcedure [dbo].[sptUpdateRelRepSystemReliabilityAlertLevelATASystem]    Script Date: 06/03/2019 14:35:37 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -7,7 +11,7 @@ GO
 -- =============================================
 -- Author:		Jamie Hanna
 -- =============================================
-ALTER PROCEDURE [dbo].[sptUpdateRelRepSystemReliabilityAlertLevelATASystem] 
+CREATE PROCEDURE [dbo].[sptUpdateRelRepSystemReliabilityAlertLevelATASystem] 
 	
 	@FromDate datetime,
 	@ToDate datetime
