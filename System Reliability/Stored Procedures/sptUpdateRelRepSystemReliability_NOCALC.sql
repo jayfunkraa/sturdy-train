@@ -243,5 +243,3 @@ BEGIN
 			)
 END
 GO
-
-
