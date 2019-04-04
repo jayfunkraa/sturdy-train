@@ -1,6 +1,13 @@
 /****** Object:  Table [dbo].[tRelRepSystemReliability]    Script Date: 06/03/2019 14:47:47 ******/
-DROP TABLE IF EXISTS dbo.tRelRepSystemReliability
-GO
+IF EXISTS (
+	SELECT 	* 
+	FROM 	sys.objects 
+	WHERE 	object_id = OBJECT_ID(N'[dbo].[tRelRepSystemReliability]') 
+	AND 	type = N'U' 
+)
+BEGIN 
+	DROP TABLE [dbo].[tRelRepSystemReliability] 
+END
 /****** Object:  Table [dbo].[tRelRepSystemReliability]    Script Date: 06/03/2019 14:47:47 ******/
 SET ANSI_NULLS ON
 GO

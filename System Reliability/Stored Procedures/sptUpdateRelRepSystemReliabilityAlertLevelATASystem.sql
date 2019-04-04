@@ -1,6 +1,13 @@
 /****** Object:  StoredProcedure [dbo].[sptUpdateRelRepSystemReliabilityAlertLevelATASystem]    Script Date: 06/03/2019 14:35:37 ******/
-DROP PROCEDURE IF EXISTS dbo.sptUpdateRelRepSystemReliabilityAlertLevelATASystem
-GO
+IF EXISTS (
+	SELECT 	* 
+	FROM 	sys.objects 
+	WHERE 	object_id = OBJECT_ID(N'[dbo].[sptUpdateRelRepSystemReliabilityAlertLevelATASystem]') 
+	AND 	type IN (N'P', N'PC', N'X') 
+)
+BEGIN 
+	DROP PROCEDURE [dbo].[sptUpdateRelRepSystemReliabilityAlertLevelATASystem] 
+END
 /****** Object:  StoredProcedure [dbo].[sptUpdateRelRepSystemReliabilityAlertLevelATASystem]    Script Date: 06/03/2019 14:35:37 ******/
 SET ANSI_NULLS ON
 GO

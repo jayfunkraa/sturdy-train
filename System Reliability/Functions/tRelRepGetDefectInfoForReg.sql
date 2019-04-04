@@ -1,6 +1,13 @@
 /****** Object:  UserDefinedFunction [dbo].[tRelRepGetDefectInfoForReg]    Script Date: 06/03/2019 14:32:48 ******/
-DROP FUNCTION IF EXISTS dbo.tRelRepGetDefectInfoForReg
-GO
+IF EXISTS (
+	SELECT 	* 
+	FROM 	sys.objects 
+	WHERE 	object_id = OBJECT_ID(N'[dbo].[tRelRepGetDefectInfoForReg]') 
+	AND 	type IN (N'FN', N'IF', N'TF', N'FS', N'FT') 
+)
+BEGIN 
+	DROP FUNCTION [dbo].[tRelRepGetDefectInfoForReg] 
+END
 /****** Object:  UserDefinedFunction [dbo].[tRelRepGetDefectInfoForReg]    Script Date: 06/03/2019 14:32:48 ******/
 SET ANSI_NULLS ON
 GO

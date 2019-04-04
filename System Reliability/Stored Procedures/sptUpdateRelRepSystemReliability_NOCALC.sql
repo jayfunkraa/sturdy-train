@@ -1,10 +1,16 @@
 /****** Object:  StoredProcedure [dbo].[sptUpdateRelRepSystemReliability_NOCALC]    Script Date: 04/03/2019 09:09:49 ******/
-DROP PROCEDURE IF EXISTS dbo.sptUpdateRelRepSystemReliability_NOCALC
-GO
+IF EXISTS (
+	SELECT 	* 
+	FROM 	sys.objects 
+	WHERE 	object_id = OBJECT_ID(N'[dbo].[sptUpdateRelRepSystemReliability_NOCALC]') 
+	AND 	type IN (N'P', N'PC', N'X') 
+)
+BEGIN 
+	DROP PROCEDURE [dbo].[sptUpdateRelRepSystemReliability_NOCALC] 
+END
 /****** Object:  StoredProcedure [dbo].[sptUpdateRelRepSystemReliability_NOCALC]    Script Date: 04/03/2019 09:09:49 ******/
 SET ANSI_NULLS ON
 GO
-
 SET QUOTED_IDENTIFIER ON
 GO
 
