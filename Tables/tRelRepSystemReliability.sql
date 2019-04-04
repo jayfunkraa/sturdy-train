@@ -1,6 +1,3 @@
-USE [TEST]
-GO
-
 /****** Object:  Table [dbo].[tRelRepSystemReliability]    Script Date: 06/03/2019 14:47:47 ******/
 DROP TABLE [dbo].[tRelRepSystemReliability]
 GO
@@ -16,9 +13,9 @@ CREATE TABLE [dbo].[tRelRepSystemReliability](
 	[ID] [int] IDENTITY(1,1) NOT NULL,
 	[Lock] [bit] NOT NULL,
 	[tReliabilityFleet_ID] [int] NULL,
+	[Type] [nvarchar](50) NOT NULL,
 	[tDefect_ID] [int] NOT NULL,
-	[tRegJourney_ID] [int] NOT NULL,
-	[DefectNo] [nvarchar](50) NULL,
+	[tRegJourney_ID] [int] NULL,
 	[DefectDate] [datetime] NULL,
 	[DefectDescription] [nvarchar](4000) NULL,
 	[NonChargeable] [bit] NULL,
@@ -43,11 +40,9 @@ CREATE TABLE [dbo].[tRelRepSystemReliability](
 	[FleetDefectsPer100FC] [decimal](18, 3) NULL,
 	[FleetAnnualDefects] [int] NULL,
 	[FleetAnnualCycles] [decimal](18,3) NULL,
-	[B1900DAlertLevel] [decimal](18, 3) NULL,
-	[Mean] [decimal](18, 3) NULL,
-	[UCL20] [decimal](18, 3) NULL,
-	[UCL25] [decimal](18, 3) NULL,
-	[UCL30] [decimal](18, 3) NULL
+	[FleetMonthDefects] [int] NULL,
+	[FleetMonthCycles] [decimal](18,3) NULL,
+	[FleetMonthDefectsPer100FC] [decimal](18,3) NULL
 ) ON [PRIMARY]
 GO
 

@@ -26,9 +26,9 @@ BEGIN
 	(
 		[Lock] [bit] NOT NULL,
 		[tReliabilityFleet_ID] [int] NULL,
+		[Type] [nvarchar](50) NOT NULL,
 		[tDefect_ID] [int] NOT NULL,
-		[tRegJourney_ID] [int] NOT NULL,
-		[DefectNo] [nvarchar](50) NULL,
+		[tRegJourney_ID] [int] NULL,
 		[DefectDate] [datetime] NULL,
 		[DefectDescription] [nvarchar](4000) NULL,
 		[NonChargeable] [bit] NULL,
@@ -49,9 +49,9 @@ BEGIN
 	(
 		Lock,
 		tReliabilityFleet_ID,
+		Type,
 		tDefect_ID,
 		tRegJourney_ID,
-		DefectNo,
 		DefectDate,
 		DefectDescription,
 		NonChargeable,
@@ -70,38 +70,86 @@ BEGIN
 
 	SELECT	1,
 			tReg.tReliabilityFleet_ID,
+			'Defect',
 			tDefect.ID,
 			tDefect.tRegJourney_ID,
-			tDefect.DefectItemNo,
-			tDefect.CreatedDate,
+			CAST(tDefect.CreatedDate as [date]),
 			tDefect.Description,
 			tDefect.ExcludeReliability,
 			tATA.ID,
 			tATA.Description,
 			tReg.ID,
-			ISNULL(ClosureTask.CarriedOutText,''),
-			UPPER(LEFT(CAST(DATENAME(mm,GETDATE()) AS nvarchar),3)) + '-' + RIGHT(CAST(DATEPART(yy,GETDATE()) AS nvarchar),2),
+			ClosureTask.CarriedOutText,
+			UPPER(LEFT(CAST(DATENAME(mm,tDefect.CreatedDate) AS nvarchar),3)) + '-' + RIGHT(CAST(DATEPART(yy,tDefect.CreatedDate) AS nvarchar),2),
 			'Q' + CAST(DATEPART(q,tDefect.CreatedDate) AS nvarchar),
 			tDefect.tDefectStatus_ID,
 			tReg.aOperator_ID,
 			tDefect.uRALBase_IDReportedFrom,
 			tAsset.tModel_ID,
-			usage.Usage
+			usage.LifeTotal
 
 	FROM	tDefect
 	JOIN	tATA ON tDefect.tATA_ID = tATA.ID
 	JOIN	tReg ON tDefect.tReg_ID = tReg.ID
 	JOIN	tAsset ON tReg.tAsset_ID = tAsset.ID
-	LEFT JOIN	sOrderTask ClosureTask ON tDefect.sOrderTask_IDClosedAgainst= ClosureTask.ID
+	LEFT JOIN	sOrderTask ClosureTask ON ClosureTask.tDefect_ID = tDefect.ID
 	JOIN	(
 				SELECT	tDefect.ID,
-						max(tRegJourneyLogBookLifeCodeEvents.LifeTotal) AS Usage
+						tRegJourneyLogBookLifeCodeEvents.LifeTotal
 				FROM	tDefect
 				JOIN	tRegJourneyLogBook ON tDefect.tRegJourney_ID = tRegJourneyLogBook.tRegJourney_ID
 				JOIN	tRegJourneyLogBookLifeCodeEvents ON tRegJourneyLogBook.ID = tRegJourneyLogBookLifeCodeEvents.tRegJourneyLogBook_ID
 				JOIN	tLifeCode on tRegJourneyLogBookLifeCodeEvents.tLifeCode_ID = tLifeCode.ID and tLifeCode.RegJourneyLandings = 1
-				GROUP BY tDefect.ID
+				join	tLogBook on tRegJourneyLogBook.tLogBook_ID = tLogBook.ID
+				join	tAsset on tLogBook.tAsset_ID = tAsset.ID
+				join	tModel on tAsset.tModel_ID = tModel.ID
+				join	tModelType on tModel.tModelType_ID = tModelType.ID
+				WHERE	tModelType.RegAsset = 1
 			) usage ON tDefect.ID = usage.ID
+
+
+	UNION ALL
+
+	SELECT	1,
+			tReg.tReliabilityFleet_ID,
+			'NRC',
+			sNRCTask.ID as sNRCTask_ID,
+			tRegJourney.ID as tRegJourney_ID,
+			sNRC.ReportedDate,
+			sNRCTask.LongDescription,
+			sNRC.ExcludeReliability,
+			tATA.ID,
+			tATA.Description as ATADescription,
+			tReg.ID as tReg_ID,
+			sOrderTask.CarriedOutText,
+			CONCAT(LEFT(DATENAME(MM, sNRC.ReportedDate), 3), '-', DATEPART(YY, sNRC.ReportedDate)) as MonthKey,
+			CONCAT('Q', DATEPART(Q, sNRC.ReportedDate)) as Quarter,
+			sNRC.sNRCStatus_ID,
+			tReg.aOperator_ID,
+			sOrder.uRALBase_ID,
+			tAsset.tModel_ID,
+			usage.LifeTotal
+	FROM	sNRCTask
+	JOIN	sNRC on sNRCTask.sNRC_ID = sNRC.ID
+	JOIN	sOrderTask on sNRCTask.sOrderTask_ID = sOrderTask.ID
+	LEFT JOIN	tRegJourney on sOrderTask.tRegJourney_ID = tRegJourney.ID
+	LEFT JOIN	tReg ON tRegJourney.tReg_ID = tReg.ID
+	LEFT JOIN	tAsset on tReg.tAsset_ID = tAsset.ID
+	LEFT JOIN	tATA on sOrderTask.tATA_ID = tATA.ID
+	JOIN	sOrder on sOrderTask.sOrder_ID = sOrder.ID
+	LEFT JOIN	(
+					SELECT	tRegJourney.ID,
+							tRegJourneyLogBookLifeCodeEvents.LifeTotal
+					FROM	tRegJourney
+					JOIN	tRegJourneyLogBook ON tRegJourney.ID = tRegJourneyLogBook.tRegJourney_ID
+					JOIN	tRegJourneyLogBookLifeCodeEvents ON tRegJourneyLogBook.ID = tRegJourneyLogBookLifeCodeEvents.tRegJourneyLogBook_ID
+					JOIN	tLifeCode ON tRegJourneyLogBookLifeCodeEvents.tLifeCode_ID = tLifeCode.ID and tLifeCode.RegJourneyLandings = 1
+					JOIN	tLogBook on tRegJourneyLogBook.tLogBook_ID = tLogBook.ID
+					JOIN	tAsset on tLogBook.tAsset_ID = tAsset.ID
+					JOIN	tModel on tAsset.tModel_ID = tModel.ID
+					JOIN	tModelType on tModel.tModelType_ID = tModelType.ID
+					WHERE	tModelType.RegAsset = 1
+				) usage ON tRegJourney.ID = usage.ID
 
 	DECLARE @IdBeforeUpdate int = (SELECT IDENT_CURRENT('tRelRepSystemReliability'))
 	DECLARE @ErrorMessage nvarchar (200) = 'Updated Succesfully'
@@ -115,9 +163,9 @@ BEGIN
 		(
 			Lock,
 			tReliabilityFleet_ID,
+			Type,
 			tDefect_ID,
 			tRegJourney_ID,
-			DefectNo,
 			DefectDate,
 			DefectDescription,
 			NonChargeable,
@@ -136,9 +184,9 @@ BEGIN
 
 		SELECT	Lock,
 				tReliabilityFleet_ID,
+				Type,
 				tDefect_ID,
 				tRegJourney_ID,
-				DefectNo,
 				DefectDate,
 				DefectDescription,
 				NonChargeable,
