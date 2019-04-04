@@ -1,6 +1,5 @@
 /****** Object:  StoredProcedure [dbo].[sptUpdateRelRepSystemReliability_NOCALC]    Script Date: 04/03/2019 09:09:49 ******/
-IF OBJECT_ID('dbo.sptUpdateRelRepSystemReliability_NOCALC', 'U') IS NOT NULL
-DROP PROCEDURE dbo.sptUpdateRelRepSystemReliability_NOCALC
+DROP PROCEDURE IF EXISTS dbo.sptUpdateRelRepSystemReliability_NOCALC
 GO
 /****** Object:  StoredProcedure [dbo].[sptUpdateRelRepSystemReliability_NOCALC]    Script Date: 04/03/2019 09:09:49 ******/
 SET ANSI_NULLS ON

@@ -1,6 +1,5 @@
 /****** Object:  StoredProcedure [dbo].[sptUpdateRelRepSystemReliabilityAlertLevelATAChapter]    Script Date: 06/03/2019 14:35:37 ******/
-IF OBJECT_ID('dbo.sptUpdateRelRepSystemReliabilityAlertLevelATAChapter', 'U') IS NOT NULL
-DROP PROCEDURE dbo.sptUpdateRelRepSystemReliabilityAlertLevelATAChapter
+DROP PROCEDURE IF EXISTS dbo.sptUpdateRelRepSystemReliabilityAlertLevelATAChapter
 GO
 /****** Object:  StoredProcedure [dbo].[sptUpdateRelRepSystemReliabilityAlertLevelATAChapter]    Script Date: 06/03/2019 14:35:37 ******/
 SET ANSI_NULLS ON

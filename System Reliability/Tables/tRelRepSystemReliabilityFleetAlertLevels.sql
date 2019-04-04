@@ -1,9 +1,7 @@
--- Create a new table called 'tRelRepSystemReliabilityFleetAlertLevels' in schema 'SchemaName'
--- Drop the table if it already exists
-IF OBJECT_ID('dbo.tRelRepSystemReliabilityFleetAlertLevels', 'U') IS NOT NULL
-DROP TABLE dbo.tRelRepSystemReliabilityFleetAlertLevels
+/****** Object:  Table [dbo].[tRelRepSystemReliabilityFleetAlertLevels]    Script Date: 06/03/2019 14:47:47 ******/
+DROP TABLE IF EXISTS dbo.tRelRepSystemReliabilityFleetAlertLevels
 GO
--- Create the table in the specified schema
+/****** Object:  Table [dbo].[tRelRepSystemReliabilityFleetAlertLevels]    Script Date: 06/03/2019 14:47:47 ******/
 CREATE TABLE dbo.tRelRepSystemReliabilityFleetAlertLevels
 (
     [ID] [INT] IDENTITY(1,1) NOT NULL, 

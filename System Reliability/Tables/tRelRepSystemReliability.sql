@@ -1,6 +1,5 @@
 /****** Object:  Table [dbo].[tRelRepSystemReliability]    Script Date: 06/03/2019 14:47:47 ******/
-IF OBJECT_ID('dbo.tRelRepSystemReliability', 'U') IS NOT NULL
-DROP TABLE dbo.tRelRepSystemReliability
+DROP TABLE IF EXISTS dbo.tRelRepSystemReliability
 GO
 /****** Object:  Table [dbo].[tRelRepSystemReliability]    Script Date: 06/03/2019 14:47:47 ******/
 SET ANSI_NULLS ON
