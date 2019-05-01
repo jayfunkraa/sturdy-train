@@ -26,6 +26,8 @@ CREATE TABLE [dbo].[tRelRepSystemReliability](
 	[DefectDescription] [nvarchar](4000) NULL,
 	[NonChargeable] [bit] NULL,
 	[tATA_ID] [int] NULL,
+	[ATAChapter] [nvarchar](5) NULL,
+	[ATASystem] [nvarchar](5) NULL,
 	[ATADescription] [nvarchar](4000) NULL,
 	[tReg_ID] [INT] NULL,
 	[CarriedOutText] [nvarchar](4000) NULL,
@@ -44,11 +46,10 @@ CREATE TABLE [dbo].[tRelRepSystemReliability](
 	[FleetFlightCycles] [decimal](18,3) NULL,
 	[RegDefectsPer100FC] [decimal](18, 3) NULL,
 	[FleetDefectsPer100FC] [decimal](18, 3) NULL,
-	[FleetAnnualDefects] [int] NULL,
-	[FleetAnnualCycles] [decimal](18,3) NULL,
 	[FleetMonthDefects] [int] NULL,
 	[FleetMonthCycles] [decimal](18,3) NULL,
-	[FleetMonthDefectsPer100FC] [decimal](18,3) NULL
+	[FleetMonthDefectsPer100FC] [decimal](18,3) NULL,
+	[tRelRepAlertLevel_ID] [int] NULL
 ) ON [PRIMARY]
 GO
 

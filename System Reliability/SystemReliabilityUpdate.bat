@@ -1,4 +1,4 @@
-SET server=localhost
+SET server=SOLNGENDEV
 SET database=TEST
 
 SET username=RalWebClientAdmin

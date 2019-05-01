@@ -70,6 +70,13 @@ SET Name = 'Model',
 WHERE uMasterData_ID = @TableID
             AND Name = 't Model _ ID'
 
+UPDATE uMasterDataColumn
+SET Name = 'Alert Level',
+    LookupColumns = 'AlertLevel',
+    UseInFilter = 1
+WHERE uMasterData_ID = @TableID
+            AND Name = 't  Rel  Rep Alert Level _ ID'
+
 ----- tidy up camel -----
 
 UPDATE  uMasterDataColumn
@@ -116,3 +123,8 @@ UPDATE  uMasterDataColumn
 SET     Name = 'Defect Description'
 WHERE   uMasterData_ID = @TableID
             AND Name = ' Defect Description'
+
+UPDATE uMasterDataColumn
+SET Name = 'Fleet Month Defects Per 100 FC'
+WHERE uMasterData_ID = @TableID
+            AND Name = ' Fleet Month Defects Per 1  0  0 FC'
