@@ -1,6 +1,13 @@
 /****** Object:  Table [dbo].[tRelRepSystemReliabilityAlertLevelATAChapter]    Script Date: 06/03/2019 14:47:47 ******/
-DROP TABLE [dbo].[tRelRepSystemReliabilityAlertLevelATAChapter]
-GO
+IF EXISTS (
+	SELECT 	* 
+	FROM 	sys.objects 
+	WHERE 	object_id = OBJECT_ID(N'[dbo].[tRelRepSystemReliabilityAlertLevelATAChapter]') 
+	AND 	type = N'U' 
+)
+BEGIN 
+	DROP TABLE [dbo].[tRelRepSystemReliabilityAlertLevelATAChapter] 
+END
 
 /****** Object:  Table [dbo].[tRelRepSystemReliabilityAlertLevelATAChapter]    Script Date: 06/03/2019 14:47:47 ******/
 SET ANSI_NULLS ON

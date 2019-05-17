@@ -164,7 +164,7 @@ BEGIN
 	
 	DECLARE @Start datetime = GETUTCDATE()
 	DECLARE @IdBeforeUpdate int = (SELECT IDENT_CURRENT('tRelRepSystemReliability'))
-	DECLARE @ErrorMessage nvarchar (200) = 'Updated Succesfully'
+	DECLARE @ErrorMessage nvarchar (200) = 'Updated Successfully'
 	
 	BEGIN TRANSACTION
 	BEGIN TRY
