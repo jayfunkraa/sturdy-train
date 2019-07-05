@@ -30,9 +30,12 @@ BEGIN
 	(
 		[Lock] [bit] NOT NULL,
 		[tReliabilityFleet_ID] [int] NULL,
+		[ReliabilityFleet] [nvarchar](100) NULL,
 		[Type] [nvarchar](50) NOT NULL,
 		[tDefect_ID] [int] NOT NULL,
+		[ItemNo] [nvarchar](100) NOT NULL,
 		[tRegJourney_ID] [int] NULL,
+		[JourneyNo] [nvarchar](100) NOT NULL,
 		[DefectDate] [datetime] NULL,
 		[DefectDescription] [nvarchar](4000) NULL,
 		[NonChargeable] [bit] NULL,
@@ -41,13 +44,18 @@ BEGIN
 		[ATASystem] [int] NULL,
 		[ATADescription] [nvarchar](4000) NULL,
 		[tReg_ID] [INT] NULL,
+		[Reg] [nvarchar](10) NULL,
 		[CarriedOutText] [nvarchar](4000) NULL,
 		[MonthKey] [nvarchar](10) NULL,
 		[Quarter] [nvarchar](10) NULL,
 		[tDefectStatus_ID] [int] NULL,
+		[DefectStatus] [nvarchar](100) NULL,
 		[aOperator_ID] [nvarchar](10) NULL,
+		[Operator] [nvarchar](100) NULL,
 		[uRALBase_ID] [int] NULL,
+		[Base] [nvarchar](100) NULL,
 		[tModel_ID] [INT] NULL,
+		[Model] [nvarchar](200) NULL,
 		[Cycles] [decimal](18, 0) NULL
 	)
 
@@ -55,9 +63,12 @@ BEGIN
 	(
 		Lock,
 		tReliabilityFleet_ID,
+		ReliabilityFleet,
 		Type,
 		tDefect_ID,
+		ItemNo,
 		tRegJourney_ID,
+		JourneyNo,
 		DefectDate,
 		DefectDescription,
 		NonChargeable,
@@ -66,21 +77,29 @@ BEGIN
 		ATASystem,
 		ATADescription,
 		tReg_ID,
+		Reg,
 		CarriedOutText,
 		MonthKey,
 		Quarter,
 		tDefectStatus_ID,
+		DefectStatus,
 		aOperator_ID,
+		Operator,
 		uRALBase_ID,
+		Base,
 		tModel_ID,
+		Model,
 		Cycles
 	)
 
 	SELECT	1,
 			tReg.tReliabilityFleet_ID,
+			tReliabilityFleet.Fleet,
 			'Defect',
 			tDefect.ID,
+			tDefect.DefectItemNo,
 			tDefect.tRegJourney_ID,
+			CONCAT(tTechLog.TechLogNo,'/', tRegJourney.JourneyNumber),
 			CAST(tDefect.CreatedDate AS [date]),
 			tDefect.Description,
 			tDefect.ExcludeReliability,
@@ -89,20 +108,41 @@ BEGIN
 			tATA.ATASystem,
 			tATA.Description,
 			tReg.ID,
+			tReg.Reg,
 			ClosureTask.CarriedOutText,
 			UPPER(LEFT(CAST(DATENAME(mm,tDefect.CreatedDate) AS nvarchar),3)) + '-' + RIGHT(CAST(DATEPART(yy,tDefect.CreatedDate) AS nvarchar),2),
 			'Q' + CAST(DATEPART(q,tDefect.CreatedDate) AS nvarchar),
 			tDefect.tDefectStatus_ID,
+			tDefectStatus.[Status],
 			tReg.aOperator_ID,
+			aOperator.OperatorName,
 			tDefect.uRALBase_IDReportedFrom,
+			uRALBase.Name,
 			tAsset.tModel_ID,
+			tModel.Model,
 			usage.LifeTotal
 
 	FROM	tDefect
 	JOIN	tATA ON tDefect.tATA_ID = tATA.ID
 	JOIN	tReg ON tDefect.tReg_ID = tReg.ID
 	JOIN	tAsset ON tReg.tAsset_ID = tAsset.ID
-	LEFT JOIN	sOrderTask ClosureTask ON ClosureTask.tDefect_ID = tDefect.ID
+	JOIN	tRegJourney ON tDefect.tRegJourney_ID = tRegJourney.ID
+	JOIN	tTechLog ON tRegJourney.tTechLog_ID = tTechLog.ID
+	JOIN	tReliabilityFleet ON tReg.tReliabilityFleet_ID = tReliabilityFleet.ID
+	JOIN	tDefectStatus ON tDefect.tDefectStatus_ID = tDefectStatus.ID
+	JOIN	aOperator on tReg.aOperator_ID = aOperator.ID
+	JOIN	uRALBase on tDefect.uRALBase_IDReportedFrom = uRALBase.ID
+	JOIN	tModel on tAsset.tModel_ID = tModel.ID
+	OUTER APPLY (
+		SELECT TOP 1	tDefect_ID,
+						sOrderTask.ID,
+						CarriedOutText
+		FROM			sOrderTask
+		JOIN			sOrderTaskStatus on sOrderTask.sOrderTaskStatus_ID = sOrderTaskStatus.ID
+		WHERE			sOrderTask.tDefect_ID = tDefect.ID
+		AND				sOrderTaskStatus.TaskClosed = 1
+		ORDER BY 		sOrderTask.CarriedOutDate DESC
+	) AS ClosureTask
 	JOIN	(
 		SELECT	tDefect.ID,
 		tRegJourneyLogBookLifeCodeEvents.LifeTotal
@@ -121,9 +161,12 @@ BEGIN
 
 	SELECT	1,
 			tReg.tReliabilityFleet_ID,
+			tReliabilityFleet.Fleet,
 			'NRC',
 			sNRCTask.ID AS sNRCTask_ID,
+			sNRCTask.ItemNo,
 			tRegJourney.ID AS tRegJourney_ID,
+			CONCAT(tTechLog.TechLogNo,'/',tRegJourney.JourneyNumber),
 			sNRC.ReportedDate,
 			sNRCTask.LongDescription,
 			sNRC.ExcludeReliability,
@@ -132,22 +175,34 @@ BEGIN
 			tATA.ATASystem,
 			tATA.Description AS ATADescription,
 			tReg.ID AS tReg_ID,
+			tReg.Reg,
 			sOrderTask.CarriedOutText,
 			CONCAT(LEFT(DATENAME(MM, sNRC.ReportedDate), 3), '-', DATEPART(YY, sNRC.ReportedDate)) AS MonthKey,
 			CONCAT('Q', DATEPART(Q, sNRC.ReportedDate)) AS Quarter,
 			sNRC.sNRCStatus_ID,
+			sNRCStatus.[Description],
 			tReg.aOperator_ID,
+			aOperator.OperatorName,
 			sOrder.uRALBase_ID,
+			uRALBase.Name,
 			tAsset.tModel_ID,
+			tModel.Model,
 			usage.LifeTotal
+
 	FROM	sNRCTask
 	JOIN	sNRC ON sNRCTask.sNRC_ID = sNRC.ID
+	JOIN	sNRCStatus ON sNRC.sNRCStatus_ID = sNRCStatus.ID
 	JOIN	sOrderTask ON sNRCTask.sOrderTask_ID = sOrderTask.ID
 	LEFT JOIN	tRegJourney ON sOrderTask.tRegJourney_ID = tRegJourney.ID
+	LEFT JOIN	tTechLog on tRegJourney.tTechLog_ID = tTechLog.ID
 	LEFT JOIN	tReg ON tRegJourney.tReg_ID = tReg.ID
+	LEFT JOIN	tReliabilityFleet ON tReg.tReliabilityFleet_ID = tReliabilityFleet.ID
+	LEFT JOIN 	aOperator on tReg.aOperator_ID = aOperator.ID
 	LEFT JOIN	tAsset ON tReg.tAsset_ID = tAsset.ID
+	LEFT JOIN	tModel ON tAsset.tModel_ID = tModel.ID
 	LEFT JOIN	tATA ON sOrderTask.tATA_ID = tATA.ID
 	JOIN	sOrder ON sOrderTask.sOrder_ID = sOrder.ID
+	JOIN	uRALBase ON sOrder.uRALBase_ID = uRALBase.ID
 	LEFT JOIN	(
 		SELECT	tRegJourney.ID,
 				tRegJourneyLogBookLifeCodeEvents.LifeTotal
@@ -176,9 +231,12 @@ BEGIN
 		(
 			Lock,
 			tReliabilityFleet_ID,
+			ReliabilityFleet,
 			Type,
 			tDefect_ID,
+			ItemNo,
 			tRegJourney_ID,
+			JourneyNo,
 			DefectDate,
 			DefectDescription,
 			NonChargeable,
@@ -187,21 +245,29 @@ BEGIN
 			ATASystem,
 			ATADescription,
 			tReg_ID,
+			Reg,
 			CarriedOutText,
 			MonthKey,
 			Quarter,
 			tDefectStatus_ID,
+			DefectStatus,
 			aOperator_ID,
+			Operator,
 			uRALBase_ID,
+			Base,
 			tModel_ID,
+			Model,
 			Cycles
 		)
 
 		SELECT	Lock,
 				tReliabilityFleet_ID,
+				ReliabilityFleet,
 				Type,
 				tDefect_ID,
+				ItemNo,
 				tRegJourney_ID,
+				JourneyNo,
 				DefectDate,
 				DefectDescription,
 				NonChargeable,
@@ -210,13 +276,18 @@ BEGIN
 				ATASystem,
 				ATADescription,
 				tReg_ID,
+				Reg,
 				CarriedOutText,
 				MonthKey,
 				Quarter,
 				tDefectStatus_ID,
+				DefectStatus,
 				aOperator_ID,
+				Operator,
 				uRALBase_ID,
+				Base,
 				tModel_ID,
+				Model,
 				Cycles
 		FROM 	@TempTable
 		WHERE	tDefect_ID NOT IN (SELECT tDefect_ID FROM tRelRepSystemReliability)

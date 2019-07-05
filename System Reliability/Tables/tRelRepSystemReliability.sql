@@ -18,25 +18,33 @@ GO
 CREATE TABLE [dbo].[tRelRepSystemReliability](
 	[ID] [int] IDENTITY(1,1) NOT NULL,
 	[Lock] [bit] NOT NULL,
-	[tReliabilityFleet_ID] [int] NULL,
-	[Type] [nvarchar](50) NOT NULL,
-	[tDefect_ID] [int] NOT NULL,
-	[tRegJourney_ID] [int] NULL,
+	[tReliabilityFleet_ID] [int] NULL, --ID
+	[ReliabilityFleet] [nvarchar](100) NULL, --NEW
+	[Type] [nvarchar](50) NULL,
+	[tDefect_ID] [int] NOT NULL, --ID
+	[ItemNo] [nvarchar](100) NULL, --NEW
+	[tRegJourney_ID] [int] NULL, --ID
+	[JourneyNo] [nvarchar](100) NULL, --NEW
 	[DefectDate] [datetime] NULL,
 	[DefectDescription] [nvarchar](4000) NULL,
 	[NonChargeable] [bit] NULL,
-	[tATA_ID] [int] NULL,
+	[tATA_ID] [int] NULL, --ID
 	[ATAChapter] [nvarchar](5) NULL,
 	[ATASystem] [nvarchar](5) NULL,
 	[ATADescription] [nvarchar](4000) NULL,
-	[tReg_ID] [INT] NULL,
+	[tReg_ID] [INT] NULL, --ID
+	[Reg] [nvarchar](10) NULL, --NEW
 	[CarriedOutText] [nvarchar](4000) NULL,
 	[MonthKey] [nvarchar](10) NULL,
 	[Quarter] [nvarchar](10) NULL,
-	[tDefectStatus_ID] [int] NULL,
-	[aOperator_ID] [nvarchar](10) NULL,
-	[uRALBase_ID] [int] NULL,
-	[tModel_ID] [INT] NULL,
+	[tDefectStatus_ID] [int] NULL, --ID
+	[DefectStatus] [nvarchar](100) NULL, --NEW
+	[aOperator_ID] [nvarchar](10) NULL, --ID
+	[Operator] [nvarchar](100) NULL, --NEW
+	[uRALBase_ID] [int] NULL, --ID
+	[Base] [nvarchar](100) NULL, --NEW
+	[tModel_ID] [INT] NULL, --ID
+	[Model] [nvarchar](200) NULL, --NEW
 	[Cycles] [decimal](18, 0) NULL,
 	[FirstDefectOnRegDate] [datetime] NULL,
 	[FirstDefectOnFleetDate] [datetime] NULL,

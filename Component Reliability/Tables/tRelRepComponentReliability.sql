@@ -74,5 +74,3 @@ CREATE TABLE [dbo].[tRelRepComponentReliability](
 	[MTBURFleet] [nvarchar](50) NULL
 ) ON [PRIMARY]
 GO
-
-

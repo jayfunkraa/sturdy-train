@@ -71,13 +71,13 @@ BEGIN
                 )
             
         UPDATE  tRelRepComponentReliability
-            SET MTBRRegistration = dbo.FormatedLifeCodeValue(@FH_ID, TSI / NoOfPnRemovedFromRegistration, 0),
+            SET MTBRRegistration =	IIF(NoOfPnRemovedFromRegistration > 0, dbo.FormatedLifeCodeValue(@FH_ID, TSI / NoOfPnRemovedFromRegistration, 0), NULL),
 
-                MTBRFleet = dbo.FormatedLifeCodeValue(@FH_ID, TSI / NoOfPnRemovedFromFleet, 0),
+                MTBRFleet =			IIF(NoOfPnRemovedFromFleet > 0, dbo.FormatedLifeCodeValue(@FH_ID, TSI / NoOfPnRemovedFromFleet, 0), NULL),
         
-                MTBURRegistration = dbo.FormatedLifeCodeValue(@FH_ID, TSI / UnscheduledRemovalsRegistration, 0),
+                MTBURRegistration = IIF(UnscheduledRemovalsRegistration > 0, dbo.FormatedLifeCodeValue(@FH_ID, TSI / UnscheduledRemovalsRegistration, 0), NULL),
 
-                MTBURFleet = dbo.FormatedLifeCodeValue(@FH_ID, TSI / UnscheduledRemovalsFleet, 0)
+                MTBURFleet =		IIF(UnscheduledRemovalsFleet > 0, dbo.FormatedLifeCodeValue(@FH_ID, TSI / UnscheduledRemovalsFleet, 0), NULL)
 
     COMMIT TRANSACTION
     END TRY
