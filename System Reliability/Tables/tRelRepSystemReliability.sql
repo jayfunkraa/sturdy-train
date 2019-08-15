@@ -25,7 +25,7 @@ CREATE TABLE [dbo].[tRelRepSystemReliability](
 	[ItemNo] [nvarchar](100) NULL, --NEW
 	[tRegJourney_ID] [int] NULL, --ID
 	[JourneyNo] [nvarchar](100) NULL, --NEW
-	[DefectDate] [datetime] NULL,
+	[DefectDate] [date] NULL,
 	[DefectDescription] [nvarchar](4000) NULL,
 	[NonChargeable] [bit] NULL,
 	[tATA_ID] [int] NULL, --ID
