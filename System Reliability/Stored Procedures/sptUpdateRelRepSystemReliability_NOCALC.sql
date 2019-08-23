@@ -38,6 +38,7 @@ BEGIN
 		[JourneyNo] [nvarchar](100) NOT NULL,
 		[DefectDate] [datetime] NULL,
 		[DefectDescription] [nvarchar](4000) NULL,
+		[CallingTask] [nvarchar](4000) NULL,
 		[NonChargeable] [bit] NULL,
 		[tATA_ID] [int] NULL,
 		[ATAChapter] [int] NULL,
@@ -71,6 +72,7 @@ BEGIN
 		JourneyNo,
 		DefectDate,
 		DefectDescription,
+		CallingTask,
 		NonChargeable,
 		tATA_ID,
 		ATAChapter,
@@ -102,6 +104,7 @@ BEGIN
 			IIF(tTechLog.TechLogNo <> '' AND tRegJourney.JourneyNumber <> '', CONCAT(tTechLog.TechLogNo,'/', tRegJourney.JourneyNumber), ''),
 			CAST(tDefect.CreatedDate AS [date]),
 			tDefect.Description,
+			'-',
 			tDefect.ExcludeReliability,
 			tATA.ID,
 			tATA.ATAChapter,
@@ -169,6 +172,7 @@ BEGIN
 			IIF(tTechLog.TechLogNo <> '' AND tRegJourney.JourneyNumber <> '', CONCAT(tTechLog.TechLogNo,'/', tRegJourney.JourneyNumber), ''),
 			sNRC.ReportedDate,
 			sNRCTask.LongDescription,
+			callingTask.CallingTask,
 			sNRC.ExcludeReliability,
 			tATA.ID,
 			tATA.ATAChapter,
@@ -176,7 +180,7 @@ BEGIN
 			tATA.Description AS ATADescription,
 			tReg.ID AS tReg_ID,
 			tReg.Reg,
-			sOrderTask.CarriedOutText,
+			sNRCTask.LongDescription,
 			CONCAT(LEFT(DATENAME(MM, sNRC.ReportedDate), 3), '-', DATEPART(YY, sNRC.ReportedDate)) AS MonthKey,
 			CONCAT('Q', DATEPART(Q, sNRC.ReportedDate)) AS Quarter,
 			sNRC.sNRCStatus_ID,
@@ -193,7 +197,7 @@ BEGIN
 	JOIN	sNRC ON sNRCTask.sNRC_ID = sNRC.ID
 	JOIN	sNRCStatus ON sNRC.sNRCStatus_ID = sNRCStatus.ID
 	JOIN	sOrderTask ON sNRCTask.sOrderTask_ID = sOrderTask.ID
-	LEFT JOIN	tRegJourney ON sOrderTask.tRegJourney_ID = tRegJourney.ID
+	LEFT JOIN	tRegJourney ON sOrderTask.tRegJourney_IDCarriedOut = tRegJourney.ID
 	LEFT JOIN	tTechLog on tRegJourney.tTechLog_ID = tTechLog.ID
 	LEFT JOIN	tReg ON tRegJourney.tReg_ID = tReg.ID
 	LEFT JOIN	tReliabilityFleet ON tReg.tReliabilityFleet_ID = tReliabilityFleet.ID
@@ -215,7 +219,16 @@ BEGIN
 		JOIN	tModel ON tAsset.tModel_ID = tModel.ID
 		JOIN	tModelType ON tModel.tModelType_ID = tModelType.ID
 		WHERE	tModelType.RegAsset = 1
-		) usage ON tRegJourney.ID = usage.ID
+	) usage ON tRegJourney.ID = usage.ID
+	LEFT JOIN (
+		SELECT	sNRCTask.ID,
+				CONCAT(tMI.MI, ' - ', tMI.Title, ' (', sOrder.OrderNo, '/', TRIM(sOrderTask.TaskNo), ')') AS CallingTask
+		FROM	sNRCTask
+		JOIN	sNRC on sNRCTask.sNRC_ID = sNRC.ID
+		JOIN	sOrderTask on sNRC.sOrderTask_IDReportedOn = sOrderTask.ID
+		LEFT JOIN	tMI on sOrderTask.tMI_IDCreatedFrom = tMI.ID
+		JOIN	sOrder on sOrderTask.sOrder_ID = sOrder.ID
+	) callingTask ON sNRCTask.ID = callingTask.ID
 	
 	DECLARE @Start datetime = GETUTCDATE()
 	DECLARE @IdBeforeUpdate int = (SELECT IDENT_CURRENT('tRelRepSystemReliability'))
@@ -239,6 +252,7 @@ BEGIN
 			JourneyNo,
 			DefectDate,
 			DefectDescription,
+			CallingTask,
 			NonChargeable,
 			tATA_ID,
 			ATAChapter,
@@ -270,6 +284,7 @@ BEGIN
 				ISNULL(JourneyNo, '-'),
 				DefectDate,
 				ISNULL(DefectDescription, '-'),
+				ISNULL(CallingTask, '-'),
 				NonChargeable,
 				tATA_ID,
 				ISNULL(ATAChapter, '-'),
