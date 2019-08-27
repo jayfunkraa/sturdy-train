@@ -49,8 +49,8 @@ CREATE TABLE [dbo].[tRelRepSystemReliability](
 	[tModel_ID] [INT] NULL, --ID
 	[Model] [nvarchar](200) NULL, --NEW
 	[Cycles] [decimal](18, 0) NULL,
-	[FirstDefectOnRegDate] [datetime] NULL,
-	[FirstDefectOnFleetDate] [datetime] NULL,
+	[FirstDefectOnRegDate] [date] NULL,
+	[FirstDefectOnFleetDate] [date] NULL,
 	[DefectsPerReg] [int] NULL,
 	[DefectsPerFleet] [int] NULL,
 	[RegFlightCycles] [decimal](18,3) NULL,
