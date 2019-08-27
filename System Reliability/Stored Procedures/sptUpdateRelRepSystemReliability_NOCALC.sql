@@ -38,7 +38,9 @@ BEGIN
 		[JourneyNo] [nvarchar](100) NOT NULL,
 		[DefectDate] [datetime] NULL,
 		[DefectDescription] [nvarchar](4000) NULL,
-		[CallingTask] [nvarchar](4000) NULL,
+		[CallingTask] [nvarchar](200) NULL,
+		[CallingTaskTitle] [nvarchar](400) NULL,
+		[WorkOrderTask] [nvarchar](200) NULL,
 		[NonChargeable] [bit] NULL,
 		[tATA_ID] [int] NULL,
 		[ATAChapter] [int] NULL,
@@ -73,6 +75,8 @@ BEGIN
 		DefectDate,
 		DefectDescription,
 		CallingTask,
+		CallingTaskTitle,
+		WorkOrderTask,
 		NonChargeable,
 		tATA_ID,
 		ATAChapter,
@@ -101,10 +105,12 @@ BEGIN
 			tDefect.ID,
 			tDefect.DefectItemNo,
 			tDefect.tRegJourney_ID,
-			IIF(tTechLog.TechLogNo <> '' AND tRegJourney.JourneyNumber <> '', CONCAT(tTechLog.TechLogNo,'/', tRegJourney.JourneyNumber), ''),
+			IIF(tTechLog.TechLogNo <> '' AND tRegJourney.JourneyNumber <> '', CONCAT(tTechLog.TechLogNo,'/', tRegJourney.JourneyNumber), NULL),
 			CAST(tDefect.CreatedDate AS [date]),
 			tDefect.Description,
-			'-',
+			NULL,
+			NULL,
+			IIF(sOrder.OrderNo <> '' AND sOrderTask.TaskNo <> '', CONCAT(sOrder.OrderNo, '/', sOrderTask.TaskNo), NULL),
 			tDefect.ExcludeReliability,
 			tATA.ID,
 			tATA.ATAChapter,
@@ -133,9 +139,11 @@ BEGIN
 	JOIN	tTechLog ON tRegJourney.tTechLog_ID = tTechLog.ID
 	JOIN	tReliabilityFleet ON tReg.tReliabilityFleet_ID = tReliabilityFleet.ID
 	JOIN	tDefectStatus ON tDefect.tDefectStatus_ID = tDefectStatus.ID
-	JOIN	aOperator on tReg.aOperator_ID = aOperator.ID
-	JOIN	uRALBase on tDefect.uRALBase_IDReportedFrom = uRALBase.ID
-	JOIN	tModel on tAsset.tModel_ID = tModel.ID
+	JOIN	aOperator ON tReg.aOperator_ID = aOperator.ID
+	JOIN	uRALBase ON tDefect.uRALBase_IDReportedFrom = uRALBase.ID
+	JOIN	tModel ON tAsset.tModel_ID = tModel.ID
+	LEFT JOIN	sOrderTask ON tDefect.ID = sOrderTask.tDefect_ID
+	LEFT JOIN	sOrder ON sOrderTask.sOrder_ID = sOrder.ID
 	OUTER APPLY (
 		SELECT TOP 1	tDefect_ID,
 						sOrderTask.ID,
@@ -159,6 +167,8 @@ BEGIN
 		JOIN	tModelType ON tModel.tModelType_ID = tModelType.ID
 		WHERE	tModelType.RegAsset = 1
 		) usage ON tDefect.ID = usage.ID
+
+	WHERE tDefectStatus.DefaultClosed = 1
 		
 	UNION ALL
 
@@ -170,9 +180,11 @@ BEGIN
 			sNRCTask.ItemNo,
 			tRegJourney.ID AS tRegJourney_ID,
 			IIF(tTechLog.TechLogNo <> '' AND tRegJourney.JourneyNumber <> '', CONCAT(tTechLog.TechLogNo,'/', tRegJourney.JourneyNumber), ''),
-			sNRC.ReportedDate,
+			CAST(sNRC.ReportedDate AS [date]),
 			sNRCTask.LongDescription,
-			callingTask.CallingTask,
+			callingTask.MI,
+			callingTask.Title,
+			IIF(sOrder.OrderNo <> '' AND sOrderTask.TaskNo <> '', CONCAT(sOrder.OrderNo, '/', sOrderTask.TaskNo), NULL),
 			sNRC.ExcludeReliability,
 			tATA.ID,
 			tATA.ATAChapter,
@@ -180,7 +192,7 @@ BEGIN
 			tATA.Description AS ATADescription,
 			tReg.ID AS tReg_ID,
 			tReg.Reg,
-			sNRCTask.LongDescription,
+			sOrderTask.CarriedOutText,
 			CONCAT(LEFT(DATENAME(MM, sNRC.ReportedDate), 3), '-', DATEPART(YY, sNRC.ReportedDate)) AS MonthKey,
 			CONCAT('Q', DATEPART(Q, sNRC.ReportedDate)) AS Quarter,
 			sNRC.sNRCStatus_ID,
@@ -222,13 +234,14 @@ BEGIN
 	) usage ON tRegJourney.ID = usage.ID
 	LEFT JOIN (
 		SELECT	sNRCTask.ID,
-				CONCAT(tMI.MI, ' - ', tMI.Title, ' (', sOrder.OrderNo, '/', TRIM(sOrderTask.TaskNo), ')') AS CallingTask
+				tMI.MI,
+				tMI.Title
 		FROM	sNRCTask
 		JOIN	sNRC on sNRCTask.sNRC_ID = sNRC.ID
 		JOIN	sOrderTask on sNRC.sOrderTask_IDReportedOn = sOrderTask.ID
 		LEFT JOIN	tMI on sOrderTask.tMI_IDCreatedFrom = tMI.ID
-		JOIN	sOrder on sOrderTask.sOrder_ID = sOrder.ID
 	) callingTask ON sNRCTask.ID = callingTask.ID
+	WHERE 	sNRCStatus.ClosedStatus = 1 OR sNRCStatus.Accepted = 1
 	
 	DECLARE @Start datetime = GETUTCDATE()
 	DECLARE @IdBeforeUpdate int = (SELECT IDENT_CURRENT('tRelRepSystemReliability'))
@@ -253,6 +266,8 @@ BEGIN
 			DefectDate,
 			DefectDescription,
 			CallingTask,
+			CallingTaskTitle,
+			WorkOrderTask,
 			NonChargeable,
 			tATA_ID,
 			ATAChapter,
@@ -285,6 +300,8 @@ BEGIN
 				DefectDate,
 				ISNULL(DefectDescription, '-'),
 				ISNULL(CallingTask, '-'),
+				ISNULL(CallingTaskTitle, '-'),
+				ISNULL(WorkOrderTask, '-'),
 				NonChargeable,
 				tATA_ID,
 				ISNULL(ATAChapter, '-'),
