@@ -21,7 +21,7 @@ CREATE TABLE [dbo].[tRelRepSystemReliability](
 	[tReliabilityFleet_ID] [int] NULL, --ID
 	[ReliabilityFleet] [nvarchar](100) NULL, --NEW
 	[Type] [nvarchar](50) NULL,
-	[tDefect_ID] [int] NOT NULL, --ID
+	[Record_ID] [int] NOT NULL, --ID
 	[ItemNo] [nvarchar](100) NULL, --NEW
 	[tRegJourney_ID] [int] NULL, --ID
 	[JourneyNo] [nvarchar](100) NULL, --NEW
@@ -40,17 +40,13 @@ CREATE TABLE [dbo].[tRelRepSystemReliability](
 	[CarriedOutText] [nvarchar](4000) NULL,
 	[MonthKey] [nvarchar](10) NULL,
 	[Quarter] [nvarchar](10) NULL,
-	[tDefectStatus_ID] [int] NULL, --ID
-	[DefectStatus] [nvarchar](100) NULL, --NEW
 	[aOperator_ID] [nvarchar](10) NULL, --ID
 	[Operator] [nvarchar](100) NULL, --NEW
 	[uRALBase_ID] [int] NULL, --ID
 	[Base] [nvarchar](100) NULL, --NEW
-	[tModel_ID] [INT] NULL, --ID
-	[Model] [nvarchar](200) NULL, --NEW
 	[Cycles] [decimal](18, 0) NULL,
-	[FirstDefectOnRegDate] [datetime] NULL,
-	[FirstDefectOnFleetDate] [datetime] NULL,
+	[FirstDefectOnRegDate] [date] NULL,
+	[FirstDefectOnFleetDate] [date] NULL,
 	[DefectsPerReg] [int] NULL,
 	[DefectsPerFleet] [int] NULL,
 	[RegFlightCycles] [decimal](18,3) NULL,

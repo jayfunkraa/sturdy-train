@@ -32,7 +32,7 @@ BEGIN
 		[tReliabilityFleet_ID] [int] NULL,
 		[ReliabilityFleet] [nvarchar](100) NULL,
 		[Type] [nvarchar](50) NOT NULL,
-		[tDefect_ID] [int] NOT NULL,
+		[Record_ID] [int] NOT NULL,
 		[ItemNo] [nvarchar](100) NOT NULL,
 		[tRegJourney_ID] [int] NULL,
 		[JourneyNo] [nvarchar](100) NOT NULL,
@@ -51,14 +51,10 @@ BEGIN
 		[CarriedOutText] [nvarchar](4000) NULL,
 		[MonthKey] [nvarchar](10) NULL,
 		[Quarter] [nvarchar](10) NULL,
-		[tDefectStatus_ID] [int] NULL,
-		[DefectStatus] [nvarchar](100) NULL,
 		[aOperator_ID] [nvarchar](10) NULL,
 		[Operator] [nvarchar](100) NULL,
 		[uRALBase_ID] [int] NULL,
 		[Base] [nvarchar](100) NULL,
-		[tModel_ID] [INT] NULL,
-		[Model] [nvarchar](200) NULL,
 		[Cycles] [decimal](18, 0) NULL
 	)
 
@@ -68,7 +64,7 @@ BEGIN
 		tReliabilityFleet_ID,
 		ReliabilityFleet,
 		Type,
-		tDefect_ID,
+		Record_ID,
 		ItemNo,
 		tRegJourney_ID,
 		JourneyNo,
@@ -87,14 +83,10 @@ BEGIN
 		CarriedOutText,
 		MonthKey,
 		Quarter,
-		tDefectStatus_ID,
-		DefectStatus,
 		aOperator_ID,
 		Operator,
 		uRALBase_ID,
 		Base,
-		tModel_ID,
-		Model,
 		Cycles
 	)
 
@@ -121,14 +113,10 @@ BEGIN
 			ClosureTask.CarriedOutText,
 			UPPER(LEFT(CAST(DATENAME(mm,tDefect.CreatedDate) AS nvarchar),3)) + '-' + RIGHT(CAST(DATEPART(yy,tDefect.CreatedDate) AS nvarchar),2),
 			'Q' + CAST(DATEPART(q,tDefect.CreatedDate) AS nvarchar),
-			tDefect.tDefectStatus_ID,
-			tDefectStatus.[Status],
 			tReg.aOperator_ID,
 			aOperator.OperatorName,
 			tDefect.uRALBase_IDReportedFrom,
 			uRALBase.Name,
-			tAsset.tModel_ID,
-			tModel.Model,
 			usage.LifeTotal
 
 	FROM	tDefect
@@ -141,7 +129,6 @@ BEGIN
 	JOIN	tDefectStatus ON tDefect.tDefectStatus_ID = tDefectStatus.ID
 	JOIN	aOperator ON tReg.aOperator_ID = aOperator.ID
 	JOIN	uRALBase ON tDefect.uRALBase_IDReportedFrom = uRALBase.ID
-	JOIN	tModel ON tAsset.tModel_ID = tModel.ID
 	LEFT JOIN	sOrderTask ON tDefect.ID = sOrderTask.tDefect_ID
 	LEFT JOIN	sOrder ON sOrderTask.sOrder_ID = sOrder.ID
 	OUTER APPLY (
@@ -195,14 +182,10 @@ BEGIN
 			sOrderTask.CarriedOutText,
 			CONCAT(LEFT(DATENAME(MM, sNRC.ReportedDate), 3), '-', DATEPART(YY, sNRC.ReportedDate)) AS MonthKey,
 			CONCAT('Q', DATEPART(Q, sNRC.ReportedDate)) AS Quarter,
-			sNRC.sNRCStatus_ID,
-			sNRCStatus.[Description],
 			tReg.aOperator_ID,
 			aOperator.OperatorName,
 			sOrder.uRALBase_ID,
 			uRALBase.Name,
-			tAsset.tModel_ID,
-			tModel.Model,
 			usage.LifeTotal
 
 	FROM	sNRCTask
@@ -215,7 +198,6 @@ BEGIN
 	LEFT JOIN	tReliabilityFleet ON tReg.tReliabilityFleet_ID = tReliabilityFleet.ID
 	LEFT JOIN 	aOperator on tReg.aOperator_ID = aOperator.ID
 	LEFT JOIN	tAsset ON tReg.tAsset_ID = tAsset.ID
-	LEFT JOIN	tModel ON tAsset.tModel_ID = tModel.ID
 	LEFT JOIN	tATA ON sOrderTask.tATA_ID = tATA.ID
 	JOIN	sOrder ON sOrderTask.sOrder_ID = sOrder.ID
 	JOIN	uRALBase ON sOrder.uRALBase_ID = uRALBase.ID
@@ -259,7 +241,7 @@ BEGIN
 			tReliabilityFleet_ID,
 			ReliabilityFleet,
 			Type,
-			tDefect_ID,
+			Record_ID,
 			ItemNo,
 			tRegJourney_ID,
 			JourneyNo,
@@ -278,14 +260,10 @@ BEGIN
 			CarriedOutText,
 			MonthKey,
 			Quarter,
-			tDefectStatus_ID,
-			DefectStatus,
 			aOperator_ID,
 			Operator,
 			uRALBase_ID,
 			Base,
-			tModel_ID,
-			Model,
 			Cycles
 		)
 
@@ -293,7 +271,7 @@ BEGIN
 				tReliabilityFleet_ID,
 				ISNULL(ReliabilityFleet, '-'),
 				ISNULL(Type, '-'),
-				tDefect_ID,
+				Record_ID,
 				ISNULL(ItemNo, '-'),
 				tRegJourney_ID,
 				ISNULL(JourneyNo, '-'),
@@ -312,17 +290,13 @@ BEGIN
 				ISNULL(CarriedOutText, '-'),
 				ISNULL(MonthKey, '-'),
 				ISNULL(Quarter, '-'),
-				tDefectStatus_ID,
-				ISNULL(DefectStatus, '-'),
 				aOperator_ID,
 				ISNULL(Operator, '-'),
 				uRALBase_ID,
 				ISNULL(Base, '-'),
-				tModel_ID,
-				ISNULL(Model, '-'),
 				Cycles
 		FROM 	@TempTable
-		WHERE	tDefect_ID NOT IN (SELECT tDefect_ID FROM tRelRepSystemReliability)
+		WHERE	Record_ID NOT IN (SELECT Record_ID FROM tRelRepSystemReliability)
 
 	COMMIT TRANSACTION
 	END TRY
