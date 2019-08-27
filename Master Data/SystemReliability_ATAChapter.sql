@@ -19,15 +19,19 @@ AND     uMasterData_ID = @TableID
 UPDATE  uMasterDataColumn
 SET     Name = 'ATA Chapter'
 WHERE   ColumnName = 'ATAChapter'
+AND     uMasterData_ID = @TableID
 
 UPDATE  uMasterDataColumn
 SET     Name = 'UCL 2.0'
 WHERE   ColumnName = 'UCL20'
+AND     uMasterData_ID = @TableID
 
 UPDATE  uMasterDataColumn
 SET     Name = 'UCL 2.5'
 WHERE   ColumnName = 'UCL25'
+AND     uMasterData_ID = @TableID
 
 UPDATE  uMasterDataColumn
 SET     Name = 'UCL 3.0'
 WHERE   ColumnName = 'UCL30'
+AND     uMasterData_ID = @TableID

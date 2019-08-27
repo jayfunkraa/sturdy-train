@@ -75,25 +75,46 @@ AND		uMasterData_ID = @TableID
 UPDATE  uMasterDataColumn
 SET     Name = 'ATA Chapter'
 WHERE   ColumnName = 'ATAChapter'
+AND		uMasterData_ID = @TableID
 
 UPDATE  uMasterDataColumn
 SET     Name = 'ATA System'
 WHERE   ColumnName = 'ATASystem'
+AND		uMasterData_ID = @TableID
 
 UPDATE  uMasterDataColumn
 SET     Name = 'ATA Description'
 WHERE   ColumnName = 'ATADescription'
+AND		uMasterData_ID = @TableID
 
 UPDATE  uMasterDataColumn
 SET     Name = 'First Defect On Reg Date'
 WHERE   ColumnName = 'FirstDefectOnRegDate'
+AND		uMasterData_ID = @TableID
 
 UPDATE  uMasterDataColumn
 SET     Name = 'First Defect On Fleet Date'
 WHERE   ColumnName = 'FirstDefectOnFleetDate'
+AND		uMasterData_ID = @TableID
 
 -- TODO: remove Reg column from load script and table
 DELETE 
 FROM	uMasterDataColumn
 WHERE	ColumnName = 'Reg'
+AND		uMasterData_ID = @TableID
+
+----- remove unwanted month columns
+DELETE
+FROM 	uMasterDataColumn
+WHERE   ColumnName = 'FleetMonthDefects'
+AND		uMasterData_ID = @TableID
+
+DELETE
+FROM 	uMasterDataColumn
+WHERE   ColumnName = 'FleetMonthCycles'
+AND		uMasterData_ID = @TableID
+
+DELETE
+FROM 	uMasterDataColumn
+WHERE   ColumnName = 'FleetMonthDefectsPer100FC'
 AND		uMasterData_ID = @TableID
