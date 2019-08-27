@@ -21,7 +21,7 @@ CREATE TABLE [dbo].[tRelRepSystemReliability](
 	[tReliabilityFleet_ID] [int] NULL, --ID
 	[ReliabilityFleet] [nvarchar](100) NULL, --NEW
 	[Type] [nvarchar](50) NULL,
-	[tDefect_ID] [int] NOT NULL, --ID
+	[Record_ID] [int] NOT NULL, --ID
 	[ItemNo] [nvarchar](100) NULL, --NEW
 	[tRegJourney_ID] [int] NULL, --ID
 	[JourneyNo] [nvarchar](100) NULL, --NEW
