@@ -55,8 +55,6 @@ BEGIN
 		[Operator] [nvarchar](100) NULL,
 		[uRALBase_ID] [int] NULL,
 		[Base] [nvarchar](100) NULL,
-		[tModel_ID] [INT] NULL,
-		[Model] [nvarchar](200) NULL,
 		[Cycles] [decimal](18, 0) NULL
 	)
 
@@ -89,8 +87,6 @@ BEGIN
 		Operator,
 		uRALBase_ID,
 		Base,
-		tModel_ID,
-		Model,
 		Cycles
 	)
 
@@ -121,8 +117,6 @@ BEGIN
 			aOperator.OperatorName,
 			tDefect.uRALBase_IDReportedFrom,
 			uRALBase.Name,
-			tAsset.tModel_ID,
-			tModel.Model,
 			usage.LifeTotal
 
 	FROM	tDefect
@@ -135,7 +129,6 @@ BEGIN
 	JOIN	tDefectStatus ON tDefect.tDefectStatus_ID = tDefectStatus.ID
 	JOIN	aOperator ON tReg.aOperator_ID = aOperator.ID
 	JOIN	uRALBase ON tDefect.uRALBase_IDReportedFrom = uRALBase.ID
-	JOIN	tModel ON tAsset.tModel_ID = tModel.ID
 	LEFT JOIN	sOrderTask ON tDefect.ID = sOrderTask.tDefect_ID
 	LEFT JOIN	sOrder ON sOrderTask.sOrder_ID = sOrder.ID
 	OUTER APPLY (
@@ -193,8 +186,6 @@ BEGIN
 			aOperator.OperatorName,
 			sOrder.uRALBase_ID,
 			uRALBase.Name,
-			tAsset.tModel_ID,
-			tModel.Model,
 			usage.LifeTotal
 
 	FROM	sNRCTask
@@ -207,7 +198,6 @@ BEGIN
 	LEFT JOIN	tReliabilityFleet ON tReg.tReliabilityFleet_ID = tReliabilityFleet.ID
 	LEFT JOIN 	aOperator on tReg.aOperator_ID = aOperator.ID
 	LEFT JOIN	tAsset ON tReg.tAsset_ID = tAsset.ID
-	LEFT JOIN	tModel ON tAsset.tModel_ID = tModel.ID
 	LEFT JOIN	tATA ON sOrderTask.tATA_ID = tATA.ID
 	JOIN	sOrder ON sOrderTask.sOrder_ID = sOrder.ID
 	JOIN	uRALBase ON sOrder.uRALBase_ID = uRALBase.ID
@@ -274,8 +264,6 @@ BEGIN
 			Operator,
 			uRALBase_ID,
 			Base,
-			tModel_ID,
-			Model,
 			Cycles
 		)
 
@@ -306,8 +294,6 @@ BEGIN
 				ISNULL(Operator, '-'),
 				uRALBase_ID,
 				ISNULL(Base, '-'),
-				tModel_ID,
-				ISNULL(Model, '-'),
 				Cycles
 		FROM 	@TempTable
 		WHERE	tDefect_ID NOT IN (SELECT tDefect_ID FROM tRelRepSystemReliability)

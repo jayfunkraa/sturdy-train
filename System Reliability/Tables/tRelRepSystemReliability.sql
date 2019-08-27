@@ -44,8 +44,6 @@ CREATE TABLE [dbo].[tRelRepSystemReliability](
 	[Operator] [nvarchar](100) NULL, --NEW
 	[uRALBase_ID] [int] NULL, --ID
 	[Base] [nvarchar](100) NULL, --NEW
-	[tModel_ID] [INT] NULL, --ID
-	[Model] [nvarchar](200) NULL, --NEW
 	[Cycles] [decimal](18, 0) NULL,
 	[FirstDefectOnRegDate] [date] NULL,
 	[FirstDefectOnFleetDate] [date] NULL,
