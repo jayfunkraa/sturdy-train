@@ -19,7 +19,9 @@ AND     uMasterData_ID = @TableID
 UPDATE  uMasterDataColumn
 SET     Name = 'Reliability Fleet'
 WHERE   ColumnName = 'tReliabilityFleet_ID'
+AND     uMasterData_ID = @TableID
 
 UPDATE  uMasterDataColumn
 SET     Name = 'ATA Chapter'
 WHERE   ColumnName = 'ATAChapter'
+AND     uMasterData_ID = @TableID

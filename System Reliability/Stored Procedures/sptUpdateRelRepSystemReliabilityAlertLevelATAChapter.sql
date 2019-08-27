@@ -31,13 +31,16 @@ BEGIN
     DECLARE @MonthValues TABLE (
         [Year] [int],
         [Month] [int],
+        [tReliabilityFleet_ID] [int],
         [ATAChapter] [nvarchar](5),
         [DefectsPer100FC] [decimal](18,3)
     )
 
     DECLARE @Calculations TABLE (
         [Year] [int],
+        [tReliabilityFleet_ID] [int],
         [ATAChapter] [nvarchar](5),
+        [Count] [int],
         [StDev] [decimal](18,3),
         [Mean] [decimal](18,3)
     )
@@ -45,6 +48,7 @@ BEGIN
     INSERT INTO @MonthValues
         SELECT	DATEPART(YYYY, r.DefectDate),
 		        DATEPART(MM, r.DefectDate),
+                r.tReliabilityFleet_ID,
 		        tATA.ATAChapter,
 		        r.FleetMonthDefectsPer100FC
         FROM	tRelRepSystemReliability r
@@ -52,13 +56,14 @@ BEGIN
 
     INSERT INTO @Calculations
         SELECT	    DATEPART(YYYY, r.DefectDate),
+                    r.tReliabilityFleet_ID,
 		            tATA.ATAChapter,
+                    COUNT(*),
 		            STDEVP(r.FleetMonthDefectsPer100FC),
 		            AVG(r.FleetMonthDefectsPer100FC)
         FROM	    tRelRepSystemReliability r
         JOIN	    tATA on r.tATA_ID = tATA.ID
         GROUP BY    DATEPART(YYYY, r.DefectDate), tATA.ATAChapter
-    
     
     DECLARE @IdBeforeUpdate int = (SELECT IDENT_CURRENT('tRelRepSystemReliabilityAlertLevelATAChapter'))
 	DECLARE @ErrorMessage nvarchar (200) = 'Updated Succesfully'
@@ -70,9 +75,11 @@ BEGIN
 
         INSERT INTO tRelRepSystemReliabilityAlertLevelATAChapter (
             [Lock],
+            [tReliabilityFleet_ID],
             [Year],
             [Month],
             [ATAChapter],
+            [Count],
             [DefectsPer100FC],
             [StDev],
             [Mean],
@@ -82,9 +89,11 @@ BEGIN
         )
 
         SELECT  1,
+                [m].[tReliabilityFleet_ID],
                 [m].[Year],
                 [m].[Month],
                 [m].[ATAChapter],
+                [c].[Count],
                 [m].[DefectsPer100FC],
                 [c].[StDev],
                 [c].[Mean],
