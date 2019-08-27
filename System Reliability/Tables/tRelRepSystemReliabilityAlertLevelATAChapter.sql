@@ -19,9 +19,11 @@ GO
 CREATE TABLE [dbo].[tRelRepSystemReliabilityAlertLevelATAChapter](
 	[ID] [int] IDENTITY(1,1) NOT NULL,
 	[Lock] [bit] NOT NULL,
+	[tReliabilityFleet_ID] [int] NULL,
 	[Year] [int] NOT NULL,
     [Month] [int] NOT NULL,
     [ATAChapter] [nvarchar](4) NOT NULL,
+	[Count] [int] NULL,
 	[DefectsPer100FC] [decimal](18, 3) NULL,
 	[StDev] [decimal](18,3) NULL,
 	[Mean] [decimal](18,3) NULL,

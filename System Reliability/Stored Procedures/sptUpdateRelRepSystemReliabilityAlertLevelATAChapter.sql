@@ -63,7 +63,7 @@ BEGIN
 		            AVG(r.FleetMonthDefectsPer100FC)
         FROM	    tRelRepSystemReliability r
         JOIN	    tATA on r.tATA_ID = tATA.ID
-        GROUP BY    DATEPART(YYYY, r.DefectDate), tATA.ATAChapter
+        GROUP BY    DATEPART(YYYY, r.DefectDate), r.tReliabilityFleet_ID, tATA.ATAChapter
     
     DECLARE @IdBeforeUpdate int = (SELECT IDENT_CURRENT('tRelRepSystemReliabilityAlertLevelATAChapter'))
 	DECLARE @ErrorMessage nvarchar (200) = 'Updated Succesfully'
