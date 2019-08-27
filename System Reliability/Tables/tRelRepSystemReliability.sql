@@ -40,8 +40,6 @@ CREATE TABLE [dbo].[tRelRepSystemReliability](
 	[CarriedOutText] [nvarchar](4000) NULL,
 	[MonthKey] [nvarchar](10) NULL,
 	[Quarter] [nvarchar](10) NULL,
-	[tDefectStatus_ID] [int] NULL, --ID
-	[DefectStatus] [nvarchar](100) NULL, --NEW
 	[aOperator_ID] [nvarchar](10) NULL, --ID
 	[Operator] [nvarchar](100) NULL, --NEW
 	[uRALBase_ID] [int] NULL, --ID
