@@ -37,6 +37,7 @@ CREATE TABLE [dbo].[tRelRepSystemReliability](
 	[ATADescription] [nvarchar](4000) NULL,
 	[tReg_ID] [INT] NULL, --ID
 	[Reg] [nvarchar](10) NULL, --NEW
+	[AircraftMSN] [nvarchar] (100) NULL,
 	[CarriedOutText] [nvarchar](4000) NULL,
 	[MonthKey] [nvarchar](10) NULL,
 	[Quarter] [nvarchar](10) NULL,

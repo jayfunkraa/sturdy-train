@@ -29,6 +29,7 @@ WHERE	ColumnName in (
 			'JourneyNo',
 			'ATADescription',
 			'tReg_ID',
+			'AircraftMSN',
 			'MonthKey',
 			'Quarter',
 			'DefectStatus',
