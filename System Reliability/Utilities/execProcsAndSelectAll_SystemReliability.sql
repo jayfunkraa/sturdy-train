@@ -4,4 +4,4 @@ DECLARE @To datetime = GETDATE()
 UPDATE tRelRepSystemReliability SET Lock = 0
 EXEC sptUpdateRelRepSystemReliability_NOCALC @From, @To
 EXEC sptUpdateRelRepSystemReliability_CALC @From, @To
-SELECT TOP 10 * FROM tRelRepSystemReliability
+SELECT * FROM tRelRepSystemReliability

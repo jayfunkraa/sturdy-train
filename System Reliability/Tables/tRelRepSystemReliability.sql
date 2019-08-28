@@ -27,6 +27,7 @@ CREATE TABLE [dbo].[tRelRepSystemReliability](
 	[DefectDate] [date] NULL,
 	[DefectDescription] [nvarchar](4000) NULL,
 	[DefectType] [nvarchar](100) NULL,
+	[DelayOrCancellation] [nvarchar](100) NULL,
 	[CallingTask] [nvarchar](200) NULL,
 	[CallingTaskTitle] [nvarchar](400) NULL,
 	[WorkOrderTask] [nvarchar](200) NULL,

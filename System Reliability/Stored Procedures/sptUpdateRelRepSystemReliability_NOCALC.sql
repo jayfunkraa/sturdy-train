@@ -38,6 +38,7 @@ BEGIN
 		[DefectDate] [datetime] NULL,
 		[DefectDescription] [nvarchar](4000) NULL,
 		[DefectType] [nvarchar](100) NULL,
+		[DelayOrCancellation] [nvarchar](100) NULL,
 		[CallingTask] [nvarchar](200) NULL,
 		[CallingTaskTitle] [nvarchar](400) NULL,
 		[WorkOrderTask] [nvarchar](200) NULL,
@@ -74,6 +75,7 @@ BEGIN
 		DefectDate,
 		DefectDescription,
 		DefectType,
+		DelayOrCancellation,
 		CallingTask,
 		CallingTaskTitle,
 		WorkOrderTask,
@@ -108,6 +110,7 @@ BEGIN
 			CAST(tDefect.CreatedDate AS [date]),
 			tDefect.Description,
 			tDefectType.DefectType,
+			DelayCancellation.Category,
 			NULL,
 			NULL,
 			IIF(sOrder.OrderNo <> '' AND sOrderTask.TaskNo <> '', CONCAT(sOrder.OrderNo, '/', sOrderTask.TaskNo), NULL),
@@ -202,6 +205,14 @@ BEGIN
 		JOIN	tModelType ON tModel.tModelType_ID = tModelType.ID
 		WHERE	tModelType.RegAsset = 1
 		) usageFH ON tDefect.ID = usageFH.ID
+	LEFT JOIN (
+		SELECT  tAOGDetail.tDefect_ID,
+        		tDiaryCategory.Category
+		FROM    tRegDiary
+		JOIN    tDiaryCategory ON tRegDiary.tDiaryCategory_ID = tDiaryCategory.ID
+		JOIN    tAOGDetail ON tRegDiary.ID = tAOGDetail.tRegDiary_ID
+		WHERE   tRegDiaryRange_ID = 2
+	) DelayCancellation ON tDefect.ID = DelayCancellation.tDefect_ID
 
 	WHERE tDefectStatus.DefaultClosed = 1
 		
@@ -217,6 +228,7 @@ BEGIN
 			CAST(sNRC.ReportedDate AS [date]),
 			sNRCTask.LongDescription,
 			sNRCType.Code,
+			NULL,
 			callingTask.MI,
 			callingTask.Title,
 			IIF(sOrder.OrderNo <> '' AND sOrderTask.TaskNo <> '', CONCAT(sOrder.OrderNo, '/', sOrderTask.TaskNo), NULL),
@@ -291,6 +303,7 @@ BEGIN
 		JOIN	sOrderTask on sNRC.sOrderTask_IDReportedOn = sOrderTask.ID
 		LEFT JOIN	tMI on sOrderTask.tMI_IDCreatedFrom = tMI.ID
 	) callingTask ON sNRCTask.ID = callingTask.ID
+
 	WHERE 	sNRCStatus.ClosedStatus = 1 OR sNRCStatus.Accepted = 1
 	
 	DECLARE @Start datetime = GETUTCDATE()
@@ -315,6 +328,7 @@ BEGIN
 			DefectDate,
 			DefectDescription,
 			DefectType,
+			DelayOrCancellation,
 			CallingTask,
 			CallingTaskTitle,
 			WorkOrderTask,
@@ -349,6 +363,7 @@ BEGIN
 				DefectDate,
 				ISNULL(DefectDescription, '-'),
 				ISNULL(DefectType, '-'),
+				ISNULL(DelayOrCancellation, '-'),
 				ISNULL(CallingTask, '-'),
 				ISNULL(CallingTaskTitle, '-'),
 				ISNULL(WorkOrderTask, '-'),
