@@ -37,6 +37,7 @@ BEGIN
 		[JourneyNo] [nvarchar](100) NOT NULL,
 		[DefectDate] [datetime] NULL,
 		[DefectDescription] [nvarchar](4000) NULL,
+		[DefectType] [nvarchar](100) NULL,
 		[CallingTask] [nvarchar](200) NULL,
 		[CallingTaskTitle] [nvarchar](400) NULL,
 		[WorkOrderTask] [nvarchar](200) NULL,
@@ -68,6 +69,7 @@ BEGIN
 		JourneyNo,
 		DefectDate,
 		DefectDescription,
+		DefectType,
 		CallingTask,
 		CallingTaskTitle,
 		WorkOrderTask,
@@ -97,6 +99,7 @@ BEGIN
 			IIF(tTechLog.TechLogNo <> '' AND tRegJourney.JourneyNumber <> '', CONCAT(tTechLog.TechLogNo,'/', tRegJourney.JourneyNumber), NULL),
 			CAST(tDefect.CreatedDate AS [date]),
 			tDefect.Description,
+			tDefectType.DefectType,
 			NULL,
 			NULL,
 			IIF(sOrder.OrderNo <> '' AND sOrderTask.TaskNo <> '', CONCAT(sOrder.OrderNo, '/', sOrderTask.TaskNo), NULL),
@@ -126,6 +129,7 @@ BEGIN
 	JOIN	tDefectStatus ON tDefect.tDefectStatus_ID = tDefectStatus.ID
 	JOIN	aOperator ON tReg.aOperator_ID = aOperator.ID
 	JOIN	uRALBase ON tDefect.uRALBase_IDReportedFrom = uRALBase.ID
+	JOIN	tDefectType ON tDefect.tDefectType_ID = tDefectType.ID
 	LEFT JOIN	sOrderTask ON tDefect.ID = sOrderTask.tDefect_ID
 	LEFT JOIN	sOrder ON sOrderTask.sOrder_ID = sOrder.ID
 	OUTER APPLY (
@@ -165,6 +169,7 @@ BEGIN
 			IIF(tTechLog.TechLogNo <> '' AND tRegJourney.JourneyNumber <> '', CONCAT(tTechLog.TechLogNo,'/', tRegJourney.JourneyNumber), ''),
 			CAST(sNRC.ReportedDate AS [date]),
 			sNRCTask.LongDescription,
+			sNRCType.Code,
 			callingTask.MI,
 			callingTask.Title,
 			IIF(sOrder.OrderNo <> '' AND sOrderTask.TaskNo <> '', CONCAT(sOrder.OrderNo, '/', sOrderTask.TaskNo), NULL),
@@ -197,6 +202,7 @@ BEGIN
 	LEFT JOIN	tATA ON sOrderTask.tATA_ID = tATA.ID
 	JOIN	sOrder ON sOrderTask.sOrder_ID = sOrder.ID
 	JOIN	uRALBase ON sOrder.uRALBase_ID = uRALBase.ID
+	JOIN	sNRCType ON sNRC.sNRCType_ID = sNRCType.ID
 	LEFT JOIN	(
 		SELECT	tRegJourney.ID,
 				tRegJourneyLogBookLifeCodeEvents.LifeTotal
@@ -242,6 +248,7 @@ BEGIN
 			JourneyNo,
 			DefectDate,
 			DefectDescription,
+			DefectType,
 			CallingTask,
 			CallingTaskTitle,
 			WorkOrderTask,
@@ -271,6 +278,7 @@ BEGIN
 				ISNULL(JourneyNo, '-'),
 				DefectDate,
 				ISNULL(DefectDescription, '-'),
+				ISNULL(DefectType, '-'),
 				ISNULL(CallingTask, '-'),
 				ISNULL(CallingTaskTitle, '-'),
 				ISNULL(WorkOrderTask, '-'),
