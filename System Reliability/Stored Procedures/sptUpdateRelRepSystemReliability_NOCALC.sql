@@ -58,7 +58,8 @@ BEGIN
 		[Base] [nvarchar](100) NULL,
 		[EmployeeCreated] [nvarchar](200) NULL,
 		[EmployeeClosed] [nvarchar](200) NULL,
-		[Cycles] [decimal](18, 0) NULL
+		[TotalAircraftHours] [nvarchar](20) NULL,
+		[TotalAircraftCycles] [decimal](18, 0) NULL
 	)
 
 	INSERT INTO @TempTable 
@@ -93,7 +94,8 @@ BEGIN
 		Base,
 		EmployeeCreated,
 		EmployeeClosed,
-		Cycles
+		TotalAircraftHours,
+		TotalAircraftCycles
 	)
 
 	SELECT	1,
@@ -126,7 +128,8 @@ BEGIN
 			uRALBase.Name,
 			Employee.Created,
 			Employee.CarriedOut,
-			usage.LifeTotal
+			usageFH.LifeTotal,
+			usageFC.LifeTotal
 
 	FROM	tDefect
 	JOIN	tATA ON tDefect.tATA_ID = tATA.ID
@@ -173,9 +176,9 @@ BEGIN
 		AND				sOrderTaskStatus.TaskClosed = 1
 		ORDER BY 		sOrderTask.CarriedOutDate DESC
 	) AS ClosureTask
-	JOIN	(
+	LEFT JOIN	(
 		SELECT	tDefect.ID,
-		tRegJourneyLogBookLifeCodeEvents.LifeTotal
+				tRegJourneyLogBookLifeCodeEvents.LifeTotal
 		FROM	tDefect
 		JOIN	tRegJourneyLogBook ON tDefect.tRegJourney_ID = tRegJourneyLogBook.tRegJourney_ID
 		JOIN	tRegJourneyLogBookLifeCodeEvents ON tRegJourneyLogBook.ID = tRegJourneyLogBookLifeCodeEvents.tRegJourneyLogBook_ID
@@ -185,7 +188,20 @@ BEGIN
 		JOIN	tModel ON tAsset.tModel_ID = tModel.ID
 		JOIN	tModelType ON tModel.tModelType_ID = tModelType.ID
 		WHERE	tModelType.RegAsset = 1
-		) usage ON tDefect.ID = usage.ID
+		) usageFC ON tDefect.ID = usageFC.ID
+	LEFT JOIN	(
+		SELECT	tDefect.ID,
+				REPLACE(RTRIM(dbo.FormatedLifeCodeValue(tRegJourneyLogBookLifeCodeEvents.tLifeCode_ID, tRegJourneyLogBookLifeCodeEvents.LifeTotal, 0)), ' FH', '') AS LifeTotal
+		FROM	tDefect
+		JOIN	tRegJourneyLogBook ON tDefect.tRegJourney_ID = tRegJourneyLogBook.tRegJourney_ID
+		JOIN	tRegJourneyLogBookLifeCodeEvents ON tRegJourneyLogBook.ID = tRegJourneyLogBookLifeCodeEvents.tRegJourneyLogBook_ID
+		JOIN	tLifeCode ON tRegJourneyLogBookLifeCodeEvents.tLifeCode_ID = tLifeCode.ID AND tLifeCode.RegJourneyHours = 1
+		JOIN	tLogBook ON tRegJourneyLogBook.tLogBook_ID = tLogBook.ID
+		JOIN	tAsset ON tLogBook.tAsset_ID = tAsset.ID
+		JOIN	tModel ON tAsset.tModel_ID = tModel.ID
+		JOIN	tModelType ON tModel.tModelType_ID = tModelType.ID
+		WHERE	tModelType.RegAsset = 1
+		) usageFH ON tDefect.ID = usageFH.ID
 
 	WHERE tDefectStatus.DefaultClosed = 1
 		
@@ -221,7 +237,8 @@ BEGIN
 			uRALBase.Name,
 			Created.ShortDisplayName,
 			CarriedOut.ShortDisplayName,
-			usage.LifeTotal
+			usageFH.LifeTotal,
+			usageFC.LifeTotal
 
 	FROM	sNRCTask
 	JOIN	sNRC ON sNRCTask.sNRC_ID = sNRC.ID
@@ -241,6 +258,19 @@ BEGIN
 	LEFT JOIN	lEmployee CarriedOut ON sOrderTask.lEmployee_IDCarriedOut = CarriedOut.ID
 	LEFT JOIN	(
 		SELECT	tRegJourney.ID,
+				REPLACE(RTRIM(dbo.FormatedLifeCodeValue(tRegJourneyLogBookLifeCodeEvents.tLifeCode_ID, tRegJourneyLogBookLifeCodeEvents.LifeTotal, 0)), ' FH', '') AS LifeTotal
+		FROM	tRegJourney
+		JOIN	tRegJourneyLogBook ON tRegJourney.ID = tRegJourneyLogBook.tRegJourney_ID
+		JOIN	tRegJourneyLogBookLifeCodeEvents ON tRegJourneyLogBook.ID = tRegJourneyLogBookLifeCodeEvents.tRegJourneyLogBook_ID
+		JOIN	tLifeCode ON tRegJourneyLogBookLifeCodeEvents.tLifeCode_ID = tLifeCode.ID AND tLifeCode.RegJourneyHours = 1
+		JOIN	tLogBook ON tRegJourneyLogBook.tLogBook_ID = tLogBook.ID
+		JOIN	tAsset ON tLogBook.tAsset_ID = tAsset.ID
+		JOIN	tModel ON tAsset.tModel_ID = tModel.ID
+		JOIN	tModelType ON tModel.tModelType_ID = tModelType.ID
+		WHERE	tModelType.RegAsset = 1
+	) usageFH ON tRegJourney.ID = usageFH.ID
+	LEFT JOIN	(
+		SELECT	tRegJourney.ID,
 				tRegJourneyLogBookLifeCodeEvents.LifeTotal
 		FROM	tRegJourney
 		JOIN	tRegJourneyLogBook ON tRegJourney.ID = tRegJourneyLogBook.tRegJourney_ID
@@ -251,7 +281,7 @@ BEGIN
 		JOIN	tModel ON tAsset.tModel_ID = tModel.ID
 		JOIN	tModelType ON tModel.tModelType_ID = tModelType.ID
 		WHERE	tModelType.RegAsset = 1
-	) usage ON tRegJourney.ID = usage.ID
+	) usageFC ON tRegJourney.ID = usageFC.ID
 	LEFT JOIN (
 		SELECT	sNRCTask.ID,
 				tMI.MI,
@@ -305,7 +335,8 @@ BEGIN
 			Base,
 			EmployeeCreated,
 			EmployeeClosed,
-			Cycles
+			TotalAircraftHours,
+			TotalAircraftCycles
 		)
 
 		SELECT	Lock,
@@ -338,7 +369,8 @@ BEGIN
 				ISNULL(Base, '-'),
 				ISNULL(EmployeeCreated, '-'),
 				ISNULL(EmployeeClosed, '-'),
-				Cycles
+				TotalAircraftHours,
+				TotalAircraftCycles
 		FROM 	@TempTable
 		WHERE	RecordID NOT IN (SELECT RecordID FROM tRelRepSystemReliability)
 

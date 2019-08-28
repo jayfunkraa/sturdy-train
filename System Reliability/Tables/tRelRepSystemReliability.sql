@@ -47,7 +47,8 @@ CREATE TABLE [dbo].[tRelRepSystemReliability](
 	[Base] [nvarchar](100) NULL, --NEW
 	[EmployeeCreated] [nvarchar](200) NULL,
 	[EmployeeClosed] [nvarchar](200) NULL,
-	[Cycles] [decimal](18, 0) NULL,
+	[TotalAircraftHours] [nvarchar](100) NULL,
+	[TotalAircraftCycles] [decimal](18, 0) NULL,
 	[FirstDefectOnRegDate] [date] NULL,
 	[FirstDefectOnFleetDate] [date] NULL,
 	[DefectsPerReg] [int] NULL,
