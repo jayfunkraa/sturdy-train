@@ -39,6 +39,10 @@ BEGIN
 		[DefectDescription] [nvarchar](4000) NULL,
 		[DefectType] [nvarchar](100) NULL,
 		[DelayOrCancellation] [nvarchar](100) NULL,
+		[PartNoOff] [nvarchar](max) NULL,
+		[SerialNoOff] [nvarchar](max) NULL,
+		[PartNoOn] [nvarchar](max) NULL,
+		[SerialNoOn] [nvarchar](max) NULL,
 		[CallingTask] [nvarchar](200) NULL,
 		[CallingTaskTitle] [nvarchar](400) NULL,
 		[WorkOrderTask] [nvarchar](200) NULL,
@@ -76,6 +80,10 @@ BEGIN
 		DefectDescription,
 		DefectType,
 		DelayOrCancellation,
+		PartNoOff,
+		SerialNoOff,
+		PartNoOn,
+		SerialNoOn,
 		CallingTask,
 		CallingTaskTitle,
 		WorkOrderTask,
@@ -111,6 +119,10 @@ BEGIN
 			tDefect.Description,
 			tDefectType.DefectType,
 			DelayCancellation.Category,
+			FitRemPnSn.PartNoRemoved,
+			FitRemPnSn.SerialNoRemoved,
+			FitRemPnSn.PartNoFitted,
+			FitRemPnSn.SerialNoFitted,
 			NULL,
 			NULL,
 			IIF(sOrder.OrderNo <> '' AND sOrderTask.TaskNo <> '', CONCAT(sOrder.OrderNo, '/', sOrderTask.TaskNo), NULL),
@@ -213,6 +225,61 @@ BEGIN
 		JOIN    tAOGDetail ON tRegDiary.ID = tAOGDetail.tRegDiary_ID
 		WHERE   tRegDiaryRange_ID = 2
 	) DelayCancellation ON tDefect.ID = DelayCancellation.tDefect_ID
+		JOIN (
+			SELECT  ID,
+        			TRIM(STUFF(
+            			(
+                			SELECT  ', ' + tAsset.SerialNo
+                			FROM    tAssetHistory ah1
+                			JOIN    tAsset ON ah1.tAsset_ID = tAsset.ID
+                			JOIN    tAssetStatus ON ah1.tAssetStatus_ID = tAssetStatus.ID
+                			WHERE   tAssetStatus.Removed = 1
+                			AND     ah1.tDefect_ID = tDefect.ID
+							ORDER BY ah1.[Sequence]
+                			FOR XML PATH('')
+            			), 1, 1, ''
+        			)) AS SerialNoRemoved,
+        			TRIM(STUFF(
+            			(
+                			SELECT  ', ' + sPart.PartNo
+                			FROM    tAssetHistory ah2
+                			JOIN    tAsset ON ah2.tAsset_ID = tAsset.ID
+                			JOIN    sPart ON tAsset.sPart_ID = sPart.ID
+                			JOIN    tAssetStatus ON ah2.tAssetStatus_ID = tAssetStatus.ID
+                			WHERE   tAssetStatus.Removed = 1
+                			AND     ah2.tDefect_ID = tDefect.ID
+							ORDER BY ah2.[Sequence]
+                			FOR XML PATH('')
+            			), 1, 1, ''
+        			)) AS PartNoRemoved,
+        			TRIM(STUFF(
+            			(
+                			SELECT  ', ' + tAsset.SerialNo
+                			FROM    tAssetHistory ah3
+                			JOIN    tAsset ON ah3.tAsset_ID = tAsset.ID
+                			JOIN    tAssetStatus ON ah3.tAssetStatus_ID = tAssetStatus.ID
+                			WHERE   tAssetStatus.Fitted = 1
+                			AND     ah3.tDefect_ID = tDefect.ID
+							ORDER BY ah3.[Sequence]
+                			FOR XML PATH('')
+            			), 1, 1, ''
+        			)) AS SerialNoFitted,
+        			TRIM(STUFF(
+            			(
+                			SELECT  ', ' + sPart.PartNo
+                			FROM    tAssetHistory ah4
+                			JOIN    tAsset ON ah4.tAsset_ID = tAsset.ID
+                			JOIN    sPart ON tAsset.sPart_ID = sPart.ID
+                			JOIN    tAssetStatus ON ah4.tAssetStatus_ID = tAssetStatus.ID
+                			WHERE   tAssetStatus.Fitted = 1
+                			AND     ah4.tDefect_ID = tDefect.ID
+							ORDER BY ah4.[Sequence]
+                			FOR XML PATH('')
+            			), 1, 1, ''
+        			)) AS PartNoFitted
+			FROM    tDefect
+			GROUP BY ID
+	) FitRemPnSn ON tDefect.ID = FitRemPnSn.ID
 
 	WHERE tDefectStatus.DefaultClosed = 1
 		
@@ -229,6 +296,10 @@ BEGIN
 			sNRCTask.LongDescription,
 			sNRCType.Code,
 			NULL,
+			FitRemPnSn.PartNoRemoved,
+			FitRemPnSn.SerialNoRemoved,
+			FitRemPnSn.PartNoFitted,
+			FitRemPnSn.SerialNoFitted,
 			callingTask.MI,
 			callingTask.Title,
 			IIF(sOrder.OrderNo <> '' AND sOrderTask.TaskNo <> '', CONCAT(sOrder.OrderNo, '/', sOrderTask.TaskNo), NULL),
@@ -303,6 +374,61 @@ BEGIN
 		JOIN	sOrderTask on sNRC.sOrderTask_IDReportedOn = sOrderTask.ID
 		LEFT JOIN	tMI on sOrderTask.tMI_IDCreatedFrom = tMI.ID
 	) callingTask ON sNRCTask.ID = callingTask.ID
+	JOIN (
+		SELECT  ID,
+        TRIM(STUFF(
+            (
+                SELECT  ', ' + tAsset.SerialNo
+                FROM    tAssetHistory ah1
+                JOIN    tAsset ON ah1.tAsset_ID = tAsset.ID
+                JOIN    tAssetStatus ON ah1.tAssetStatus_ID = tAssetStatus.ID
+                WHERE   tAssetStatus.Removed = 1
+                AND     ah1.sOrderTask_ID = sOrderTask.ID
+                ORDER BY ah1.[Sequence]
+                FOR XML PATH('')
+            ), 1, 1, ''
+        )) AS SerialNoRemoved,
+        TRIM(STUFF(
+            (
+                SELECT  ', ' + sPart.PartNo
+                FROM    tAssetHistory ah2
+                JOIN    tAsset ON ah2.tAsset_ID = tAsset.ID
+                JOIN    sPart ON tAsset.sPart_ID = sPart.ID
+                JOIN    tAssetStatus ON ah2.tAssetStatus_ID = tAssetStatus.ID
+                WHERE   tAssetStatus.Removed = 1
+                AND     ah2.sOrderTask_ID = sOrderTask.ID
+                ORDER BY ah2.[Sequence]
+                FOR XML PATH('')
+            ), 1, 1, ''
+        )) AS PartNoRemoved,
+        TRIM(STUFF(
+            (
+                SELECT  ', ' + tAsset.SerialNo
+                FROM    tAssetHistory ah3
+                JOIN    tAsset ON ah3.tAsset_ID = tAsset.ID
+                JOIN    tAssetStatus ON ah3.tAssetStatus_ID = tAssetStatus.ID
+                WHERE   tAssetStatus.Fitted = 1
+                AND     ah3.sOrderTask_ID = sOrderTask.ID
+                ORDER BY ah3.[Sequence]
+                FOR XML PATH('')
+            ), 1, 1, ''
+        )) AS SerialNoFitted,
+        TRIM(STUFF(
+            (
+                SELECT  ', ' + sPart.PartNo
+                FROM    tAssetHistory ah4
+                JOIN    tAsset ON ah4.tAsset_ID = tAsset.ID
+                JOIN    sPart ON tAsset.sPart_ID = sPart.ID
+                JOIN    tAssetStatus ON ah4.tAssetStatus_ID = tAssetStatus.ID
+                WHERE   tAssetStatus.Fitted = 1
+                AND     ah4.sOrderTask_ID = sOrderTask.ID
+                ORDER BY ah4.[Sequence]
+                FOR XML PATH('')
+            ), 1, 1, ''
+        )) AS PartNoFitted
+		FROM    sOrderTask
+		GROUP BY ID
+	) FitRemPnSn ON sOrderTask.ID = FitRemPnSn.ID
 
 	WHERE 	sNRCStatus.ClosedStatus = 1 OR sNRCStatus.Accepted = 1
 	
@@ -329,6 +455,10 @@ BEGIN
 			DefectDescription,
 			DefectType,
 			DelayOrCancellation,
+			PartNoOff,
+			SerialNoOff,
+			PartNoOn,
+			SerialNoOn,
 			CallingTask,
 			CallingTaskTitle,
 			WorkOrderTask,
@@ -364,6 +494,10 @@ BEGIN
 				ISNULL(DefectDescription, '-'),
 				ISNULL(DefectType, '-'),
 				ISNULL(DelayOrCancellation, '-'),
+				ISNULL(PartNoOff,'-'),
+				ISNULL(SerialNoOff,'-'),
+				ISNULL(PartNoOn,'-'),
+				ISNULL(SerialNoOn,'-'),
 				ISNULL(CallingTask, '-'),
 				ISNULL(CallingTaskTitle, '-'),
 				ISNULL(WorkOrderTask, '-'),
