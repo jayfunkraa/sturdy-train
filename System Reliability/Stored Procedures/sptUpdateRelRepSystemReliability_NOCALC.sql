@@ -32,7 +32,7 @@ BEGIN
 		[tReliabilityFleet_ID] [int] NULL,
 		[ReliabilityFleet] [nvarchar](100) NULL,
 		[Type] [nvarchar](50) NOT NULL,
-		[Record_ID] [int] NOT NULL,
+		[RecordID] [int] NOT NULL,
 		[ItemNo] [nvarchar](100) NOT NULL,
 		[JourneyNo] [nvarchar](100) NOT NULL,
 		[DefectDate] [datetime] NULL,
@@ -63,7 +63,7 @@ BEGIN
 		tReliabilityFleet_ID,
 		ReliabilityFleet,
 		Type,
-		Record_ID,
+		RecordID,
 		ItemNo,
 		JourneyNo,
 		DefectDate,
@@ -237,7 +237,7 @@ BEGIN
 			tReliabilityFleet_ID,
 			ReliabilityFleet,
 			Type,
-			Record_ID,
+			RecordID,
 			ItemNo,
 			JourneyNo,
 			DefectDate,
@@ -266,7 +266,7 @@ BEGIN
 				tReliabilityFleet_ID,
 				ISNULL(ReliabilityFleet, '-'),
 				ISNULL(Type, '-'),
-				Record_ID,
+				RecordID,
 				ISNULL(ItemNo, '-'),
 				ISNULL(JourneyNo, '-'),
 				DefectDate,
@@ -290,7 +290,7 @@ BEGIN
 				ISNULL(Base, '-'),
 				Cycles
 		FROM 	@TempTable
-		WHERE	Record_ID NOT IN (SELECT Record_ID FROM tRelRepSystemReliability)
+		WHERE	RecordID NOT IN (SELECT RecordID FROM tRelRepSystemReliability)
 
 	COMMIT TRANSACTION
 	END TRY
