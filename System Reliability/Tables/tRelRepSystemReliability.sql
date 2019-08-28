@@ -23,7 +23,6 @@ CREATE TABLE [dbo].[tRelRepSystemReliability](
 	[Type] [nvarchar](50) NULL,
 	[Record_ID] [int] NOT NULL, --ID
 	[ItemNo] [nvarchar](100) NULL, --NEW
-	[tRegJourney_ID] [int] NULL, --ID
 	[JourneyNo] [nvarchar](100) NULL, --NEW
 	[DefectDate] [date] NULL,
 	[DefectDescription] [nvarchar](4000) NULL,
