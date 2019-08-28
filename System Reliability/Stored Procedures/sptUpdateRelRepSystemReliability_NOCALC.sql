@@ -56,6 +56,8 @@ BEGIN
 		[Operator] [nvarchar](100) NULL,
 		[uRALBase_ID] [int] NULL,
 		[Base] [nvarchar](100) NULL,
+		[EmployeeCreated] [nvarchar](200) NULL,
+		[EmployeeClosed] [nvarchar](200) NULL,
 		[Cycles] [decimal](18, 0) NULL
 	)
 
@@ -89,6 +91,8 @@ BEGIN
 		Operator,
 		uRALBase_ID,
 		Base,
+		EmployeeCreated,
+		EmployeeClosed,
 		Cycles
 	)
 
@@ -120,6 +124,8 @@ BEGIN
 			aOperator.OperatorName,
 			tDefect.uRALBase_IDReportedFrom,
 			uRALBase.Name,
+			Employee.Created,
+			Employee.CarriedOut,
 			usage.LifeTotal
 
 	FROM	tDefect
@@ -135,6 +141,28 @@ BEGIN
 	JOIN	tDefectType ON tDefect.tDefectType_ID = tDefectType.ID
 	LEFT JOIN	sOrderTask ON tDefect.ID = sOrderTask.tDefect_ID
 	LEFT JOIN	sOrder ON sOrderTask.sOrder_ID = sOrder.ID
+	LEFT JOIN	(
+					SELECT  ID,
+        					Created,
+        					CarriedOut
+					FROM    (
+            					SELECT  tDefect.ID,
+                    					Created.ShortDisplayName AS Created,
+                    					CarriedOut.ShortDisplayName AS CarriedOut,
+                    					ROW_NUMBER() OVER(PARTITION BY tDefect_ID ORDER BY TaskEmployee.CarriedOutDate DESC, tDefect.ID DESC) AS RowID
+            					FROM    tDefect
+            					LEFT JOIN    (
+                								SELECT  sOrderTask.tDefect_ID,
+                        								sOrderTask.CarriedOutDate,
+                       									sOrderTask.lEmployee_IDCarriedOut
+                								FROM    sOrderTask
+                								JOIN    sOrderTaskStatus ON sOrderTask.sOrderTaskStatus_ID = sOrderTaskStatus.ID AND sOrderTaskStatus.TaskClosed = 1
+            								) TaskEmployee ON tDefect.ID = TaskEmployee.tDefect_ID
+            					LEFT JOIN    lEmployee Created ON tDefect.lEmployee_IDTaskCreated = Created.ID
+            					LEFT JOIN    lEmployee CarriedOut ON TaskEmployee.lEmployee_IDCarriedOut = CarriedOut.ID
+        					) AS Emp
+					WHERE   RowID = 1
+				) AS Employee ON tDefect.ID = Employee.ID
 	OUTER APPLY (
 		SELECT TOP 1	tDefect_ID,
 						sOrderTask.ID,
@@ -191,6 +219,8 @@ BEGIN
 			aOperator.OperatorName,
 			sOrder.uRALBase_ID,
 			uRALBase.Name,
+			Created.ShortDisplayName,
+			CarriedOut.ShortDisplayName,
 			usage.LifeTotal
 
 	FROM	sNRCTask
@@ -207,6 +237,8 @@ BEGIN
 	JOIN	sOrder ON sOrderTask.sOrder_ID = sOrder.ID
 	JOIN	uRALBase ON sOrder.uRALBase_ID = uRALBase.ID
 	JOIN	sNRCType ON sNRC.sNRCType_ID = sNRCType.ID
+	LEFT JOIN 	lEmployee Created ON sNRC.lEmployee_IDReportedBy = Created.ID
+	LEFT JOIN	lEmployee CarriedOut ON sOrderTask.lEmployee_IDCarriedOut = CarriedOut.ID
 	LEFT JOIN	(
 		SELECT	tRegJourney.ID,
 				tRegJourneyLogBookLifeCodeEvents.LifeTotal
@@ -271,6 +303,8 @@ BEGIN
 			Operator,
 			uRALBase_ID,
 			Base,
+			EmployeeCreated,
+			EmployeeClosed,
 			Cycles
 		)
 
@@ -302,6 +336,8 @@ BEGIN
 				ISNULL(Operator, '-'),
 				uRALBase_ID,
 				ISNULL(Base, '-'),
+				ISNULL(EmployeeCreated, '-'),
+				ISNULL(EmployeeClosed, '-'),
 				Cycles
 		FROM 	@TempTable
 		WHERE	RecordID NOT IN (SELECT RecordID FROM tRelRepSystemReliability)
