@@ -46,7 +46,7 @@ BEGIN
 		[CallingTask] [nvarchar](200) NULL,
 		[CallingTaskTitle] [nvarchar](400) NULL,
 		[WorkOrderTask] [nvarchar](200) NULL,
-		[NonChargeable] [bit] NULL,
+		--[NonChargeable] [bit] NULL,
 		[tATA_ID] [int] NULL,
 		[ATAChapter] [int] NULL,
 		[ATASystem] [int] NULL,
@@ -87,7 +87,7 @@ BEGIN
 		CallingTask,
 		CallingTaskTitle,
 		WorkOrderTask,
-		NonChargeable,
+		--NonChargeable,
 		tATA_ID,
 		ATAChapter,
 		ATASystem,
@@ -126,7 +126,7 @@ BEGIN
 			NULL,
 			NULL,
 			IIF(sOrder.OrderNo <> '' AND sOrderTask.TaskNo <> '', CONCAT(sOrder.OrderNo, '/', sOrderTask.TaskNo), NULL),
-			tDefect.ExcludeReliability,
+			--tDefect.ExcludeReliability,
 			tATA.ID,
 			tATA.ATAChapter,
 			tATA.ATASystem,
@@ -281,7 +281,8 @@ BEGIN
 			GROUP BY ID
 	) FitRemPnSn ON tDefect.ID = FitRemPnSn.ID
 
-	WHERE tDefectStatus.DefaultClosed = 1
+	WHERE 	tDefectStatus.DefaultClosed = 1
+	AND		tDefect.ExcludeReliability = 0
 		
 	UNION ALL
 
@@ -303,7 +304,7 @@ BEGIN
 			callingTask.MI,
 			callingTask.Title,
 			IIF(sOrder.OrderNo <> '' AND sOrderTask.TaskNo <> '', CONCAT(sOrder.OrderNo, '/', sOrderTask.TaskNo), NULL),
-			sNRC.ExcludeReliability,
+			--sNRC.ExcludeReliability,
 			tATA.ID,
 			tATA.ATAChapter,
 			tATA.ATASystem,
@@ -431,6 +432,7 @@ BEGIN
 	) FitRemPnSn ON sOrderTask.ID = FitRemPnSn.ID
 
 	WHERE 	sNRCStatus.ClosedStatus = 1 OR sNRCStatus.Accepted = 1
+	AND		sNRC.ExcludeReliability = 0
 	
 	DECLARE @Start datetime = GETUTCDATE()
 	DECLARE @IdBeforeUpdate int = (SELECT IDENT_CURRENT('tRelRepSystemReliability'))
@@ -462,7 +464,7 @@ BEGIN
 			CallingTask,
 			CallingTaskTitle,
 			WorkOrderTask,
-			NonChargeable,
+			--NonChargeable,
 			tATA_ID,
 			ATAChapter,
 			ATASystem,
@@ -501,7 +503,7 @@ BEGIN
 				ISNULL(CallingTask, '-'),
 				ISNULL(CallingTaskTitle, '-'),
 				ISNULL(WorkOrderTask, '-'),
-				NonChargeable,
+				--NonChargeable,
 				tATA_ID,
 				ISNULL(ATAChapter, '-'),
 				ISNULL(ATASystem, '-'),
