@@ -1,5 +1,5 @@
 SET server=localhost
-SET database=TEST
+SET database=LIVE
 
 SET username=RalWebClientAdmin
 SET password=ralwebclientadmin
