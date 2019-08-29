@@ -125,7 +125,7 @@ BEGIN
 			FitRemPnSn.SerialNoFitted,
 			NULL,
 			NULL,
-			IIF(sOrder.OrderNo <> '' AND sOrderTask.TaskNo <> '', CONCAT(sOrder.OrderNo, '/', sOrderTask.TaskNo), NULL),
+			IIF(ClosureTask.OrderNo <> '' AND ClosureTask.TaskNo <> '', CONCAT(ClosureTask.OrderNo, '/', ClosureTask.TaskNo), NULL),
 			--tDefect.ExcludeReliability,
 			tATA.ID,
 			tATA.ATAChapter,
@@ -157,8 +157,6 @@ BEGIN
 	JOIN	aOperator ON tReg.aOperator_ID = aOperator.ID
 	JOIN	uRALBase ON tDefect.uRALBase_IDReportedFrom = uRALBase.ID
 	JOIN	tDefectType ON tDefect.tDefectType_ID = tDefectType.ID
-	LEFT JOIN	sOrderTask ON tDefect.ID = sOrderTask.tDefect_ID
-	LEFT JOIN	sOrder ON sOrderTask.sOrder_ID = sOrder.ID
 	LEFT JOIN	(
 					SELECT  ID,
         					Created,
@@ -184,9 +182,12 @@ BEGIN
 	OUTER APPLY (
 		SELECT TOP 1	tDefect_ID,
 						sOrderTask.ID,
+						sOrder.OrderNo,
+						sOrderTask.TaskNo,
 						CarriedOutText
 		FROM			sOrderTask
-		JOIN			sOrderTaskStatus on sOrderTask.sOrderTaskStatus_ID = sOrderTaskStatus.ID
+		JOIN			sOrderTaskStatus ON sOrderTask.sOrderTaskStatus_ID = sOrderTaskStatus.ID
+		JOIN			sOrder ON sOrderTask.sOrder_ID = sOrder.ID
 		WHERE			sOrderTask.tDefect_ID = tDefect.ID
 		AND				sOrderTaskStatus.TaskClosed = 1
 		ORDER BY 		sOrderTask.CarriedOutDate DESC
