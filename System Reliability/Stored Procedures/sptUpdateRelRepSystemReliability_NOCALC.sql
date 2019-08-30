@@ -296,7 +296,7 @@ BEGIN
 			IIF(tTechLog.TechLogNo <> '' AND tRegJourney.JourneyNumber <> '', CONCAT(tTechLog.TechLogNo,'/', tRegJourney.JourneyNumber), ''),
 			CAST(sNRC.ReportedDate AS [date]),
 			sNRCTask.LongDescription,
-			sNRCType.Code, --Change to 'MAREP'
+			'MAREP',
 			NULL,
 			FitRemPnSn.PartNoRemoved,
 			FitRemPnSn.SerialNoRemoved,
