@@ -27,6 +27,7 @@ CREATE TABLE [dbo].[tRelRepSystemReliability](
 	[Reg] [nvarchar](10) NULL, --NEW
 	[AircraftMSN] [nvarchar] (100) NULL,
 	[DefectDate] [date] NULL,
+	[DefectDateFormatted] [nvarchar](10) NULL,
 	[tATA_ID] [int] NULL, --ID
 	[ATAChapter] [nvarchar](5) NULL,
 	[ATASystem] [nvarchar](5) NULL,
@@ -56,7 +57,9 @@ CREATE TABLE [dbo].[tRelRepSystemReliability](
 	[WorkOrderTask] [nvarchar](200) NULL,
 	
 	[FirstDefectOnRegDate] [date] NULL,
+	[FirstDefectOnRegDateFormatted] [nvarchar](10) NULL,
 	[FirstDefectOnFleetDate] [date] NULL,
+	[FirstDefectOnFleetDateFormatted] [nvarchar](10) NULL,
 	[DefectsPerReg] [int] NULL,
 	[DefectsPerFleet] [int] NULL,
 	[RegFlightCycles] [decimal](18,0) NULL,

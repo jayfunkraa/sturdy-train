@@ -168,6 +168,36 @@ FROM 	uMasterDataColumn
 WHERE   ColumnName = 'FleetMonthDefectsPer100FC'
 AND		uMasterData_ID = @TableID
 
+----- remove date values and rename formatted dates -----
+DELETE
+FROM 	uMasterDataColumn
+WHERE   ColumnName = 'DefectDate'
+AND		uMasterData_ID = @TableID
+
+DELETE
+FROM 	uMasterDataColumn
+WHERE   ColumnName = 'FirstDefectOnRegDate'
+AND		uMasterData_ID = @TableID
+
+DELETE
+FROM 	uMasterDataColumn
+WHERE   ColumnName = 'FirstDefectOnFleetDate'
+AND		uMasterData_ID = @TableID
+
+UPDATE	uMasterDataColumn
+SET		Name = 'Defect Date'
+WHERE	ColumnName = 'DefectDateFormatted'
+
+UPDATE	uMasterDataColumn
+SET		Name = 'First Defect on Reg'
+WHERE	ColumnName = 'FirstDefectOnRegDateFormatted'
+AND		uMasterData_ID = @TableID
+
+UPDATE	uMasterDataColumn
+SET		Name = 'First Defect On Fleet'
+WHERE	ColumnName = 'FirstDefectOnFleetDateFormatted'
+AND		uMasterData_ID = @TableID
+
 ----- add filters -----
 UPDATE	uMasterDataColumn
 SET		UseInFilter = 1
