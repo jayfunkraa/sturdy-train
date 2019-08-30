@@ -54,7 +54,6 @@ CREATE TABLE [dbo].[tRelRepSystemReliability](
 	[CallingTask] [nvarchar](200) NULL,
 	[CallingTaskTitle] [nvarchar](400) NULL,
 	[WorkOrderTask] [nvarchar](200) NULL,
-	--[NonChargeable] [bit] NULL,
 	
 	[FirstDefectOnRegDate] [date] NULL,
 	[FirstDefectOnFleetDate] [date] NULL,
