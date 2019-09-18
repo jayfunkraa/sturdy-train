@@ -4,5 +4,11 @@
 			"path": "."
 		}
 	],
-	"settings": {}
+	"settings": {
+		"files.exclude": {
+			"**/.code-workspace": true
+		},
+		"editor.snippetSuggestions": "none",
+		"files.defaultLanguage": "sql"
+	}
 }
