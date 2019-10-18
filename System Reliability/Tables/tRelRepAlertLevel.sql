@@ -6,10 +6,11 @@ GO
 -- Create the table in the specified schema
 CREATE TABLE dbo.tRelRepAlertLevel
 (
-    [ID] [INT] IDENTITY(1,1) NOT NULL, 
+    [ID] [int] IDENTITY(1,1) NOT NULL, 
     [Year] [nvarchar](4) NOT NULL,
-    [tReliabilityFleet_ID] [INT] NOT NULL,
+    [tReliabilityFleet_ID] [int] NOT NULL,
     [ATAChapter] [nvarchar](5) NULL,
+    [K] [int] DEFAULT 1  NOT NULL,
     [AlertLevel] [decimal](18,5) NULL
 );
 GO
