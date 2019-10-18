@@ -26,14 +26,20 @@ AS
 BEGIN
 	SET NOCOUNT ON;
 
-    DECLARE @TempTable TABLE 
+    IF OBJECT_ID('dbo.#TempTable', 'U') IS NOT NULL
+    DROP TABLE dbo.#TempTable
+
+
+    CREATE TABLE #TempTable 
     (
-        [Year] [nvarchar](4) NOT NULL,
+        [Year] [nvarchar](4) COLLATE Latin1_General_CS_AS NOT NULL,
         [tReliabilityFleet_ID] [INT] NOT NULL,
-        [ATAChapter] [nvarchar](5) NULL
+        [ATAChapter] [nvarchar](5) COLLATE Latin1_General_CS_AS NULL,
+        [K] [int] DEFAULT 1 NOT NULL,
+        [AlertLevel] [decimal](18,5) NULL
     )
 
-    INSERT INTO @TempTable
+    INSERT INTO #TempTable
     (
         Year,
         tReliabilityFleet_ID,
@@ -63,6 +69,17 @@ BEGIN
     ORDER BY Year,
         tReliabilityFleet_ID,
         ATAChapter
+    
+
+    UPDATE  #TempTable
+    SET     AlertLevel = (
+                SELECT  TOP 1 DefectsPer100FC * #TempTable.K
+                FROM    tRelRepSystemReliabilityAlertLevelATAChapter RelChap
+                WHERE    RelChap.ATAChapter = #TempTable.ATAChapter
+                            AND RelChap.tReliabilityFleet_ID = #TempTable.tReliabilityFleet_ID
+                            AND RelChap.[Year] = #TempTable.[Year]
+                
+            )
 
     DECLARE @Start datetime = GETUTCDATE()
 	DECLARE @IdBeforeUpdate int = (SELECT IDENT_CURRENT('tRelRepAlertLevel'))
@@ -75,13 +92,17 @@ BEGIN
         (
             Year,
             tReliabilityFleet_ID,
-            ATAChapter
+            ATAChapter,
+            K,
+            AlertLevel
         )
 
         SELECT  Year,
                 tReliabilityFleet_ID,
-                ATAChapter
-        FROM    @TempTable
+                ATAChapter,
+                K,
+                AlertLevel
+        FROM    #TempTable
     
     COMMIT TRANSACTION
     END TRY
@@ -115,5 +136,7 @@ BEGIN
 			ISNULL( (SELECT MAX(ID) FROM tDefect), 0),
 			@ErrorMessage
 			)
+
+    DROP TABLE #TempTable
 END
 GO
