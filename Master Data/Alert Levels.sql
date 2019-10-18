@@ -25,3 +25,13 @@ UPDATE  uMasterDataColumn
 SET     Name = 'ATA Chapter'
 WHERE   ColumnName = 'ATAChapter'
 AND     uMasterData_ID = @TableID
+
+----- add filters -----
+UPDATE  uMasterDataColumn
+SET     UseInFilter = 1
+WHERE   ColumnName IN (
+    'ATAChapter',
+    'tReliabilityFleet_ID',
+    'Year'
+)
+AND     uMasterData_ID = @TableID
