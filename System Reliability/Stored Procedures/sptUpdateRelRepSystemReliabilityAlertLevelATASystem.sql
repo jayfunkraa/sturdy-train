@@ -50,7 +50,7 @@ BEGIN
 		        DATEPART(MM, r.DefectDate),
                 r.tReliabilityFleet_ID,
 		        CONCAT(tATA.ATAChapter, '-', tATA.ATASystem),
-		        r.FleetMonthDefectsPer100FC
+		        r.FleetMonthDefectsPer100FCSystem
         FROM	tRelRepSystemReliability r
         JOIN	tATA on r.tATA_ID = tATA.ID
 
@@ -59,8 +59,8 @@ BEGIN
                     r.tReliabilityFleet_ID,
                     CONCAT(tATA.ATAChapter, '-', tATA.ATASystem),
 		            COUNT(*),
-                    STDEVP(r.FleetMonthDefectsPer100FC),
-		            AVG(r.FleetMonthDefectsPer100FC)
+                    STDEVP(r.FleetMonthDefectsPer100FCSystem),
+		            AVG(r.FleetMonthDefectsPer100FCSystem)
         FROM	    tRelRepSystemReliability r
         JOIN	    tATA on r.tATA_ID = tATA.ID
         GROUP BY    DATEPART(YYYY, r.DefectDate), r.tReliabilityFleet_ID, tATA.ATAChapter, tATA.ATASystem
