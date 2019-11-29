@@ -25,6 +25,7 @@ CREATE TABLE [dbo].[tRelRepSystemReliability](
 	[DefectType] [nvarchar](100) NULL,
 	[tReg_ID] [INT] NULL, --ID
 	[Reg] [nvarchar](10) NULL, --NEW
+	[tAsset_IDReg] [int] NULL,
 	[AircraftMSN] [nvarchar] (100) NULL,
 	[DefectDate] [date] NULL,
 	[DefectDateFormatted] [nvarchar](10) NULL,
