@@ -38,6 +38,7 @@ BEGIN
 
     DECLARE @Calculations TABLE (
         [Year] [int],
+        [Month] [int],
         [tReliabilityFleet_ID] [int],
         [ATAChapter] [nvarchar](5),
         [Count] [int],
@@ -50,20 +51,21 @@ BEGIN
 		        DATEPART(MM, r.DefectDate),
                 r.tReliabilityFleet_ID,
 		        tATA.ATAChapter,
-		        r.FleetMonthDefectsPer100FC
+		        r.FleetMonthDefectsPer100FCChapter
         FROM	tRelRepSystemReliability r
         JOIN	tATA on r.tATA_ID = tATA.ID
 
     INSERT INTO @Calculations
         SELECT	    DATEPART(YYYY, r.DefectDate),
+                    DATEPART(MM, r.DefectDate),
                     r.tReliabilityFleet_ID,
 		            tATA.ATAChapter,
                     COUNT(*),
-		            STDEVP(r.FleetMonthDefectsPer100FC),
-		            AVG(r.FleetMonthDefectsPer100FC)
+		            STDEVP(r.FleetMonthDefectsPer100FCChapter),
+		            AVG(r.FleetMonthDefectsPer100FCChapter)
         FROM	    tRelRepSystemReliability r
         JOIN	    tATA on r.tATA_ID = tATA.ID
-        GROUP BY    DATEPART(YYYY, r.DefectDate), r.tReliabilityFleet_ID, tATA.ATAChapter
+        GROUP BY    DATEPART(YYYY, r.DefectDate), DATEPART(MM, r.DefectDate), r.tReliabilityFleet_ID, tATA.ATAChapter
     
     DECLARE @IdBeforeUpdate int = (SELECT IDENT_CURRENT('tRelRepSystemReliabilityAlertLevelATAChapter'))
 	DECLARE @ErrorMessage nvarchar (200) = 'Updated Succesfully'
@@ -88,7 +90,7 @@ BEGIN
             [UCL30]
         )
 
-        SELECT  1,
+        SELECT  DISTINCT 1,
                 [m].[tReliabilityFleet_ID],
                 [m].[Year],
                 [m].[Month],
@@ -101,8 +103,9 @@ BEGIN
                 [c].[Mean] + ([StDev] * 2.5),
                 [c].[Mean] + ([StDev] * 3)
         FROM    @MonthValues m
-        JOIN    @Calculations c on m.Year = c.Year AND m.ATAChapter = c.ATAChapter
+        JOIN    @Calculations c ON m.Year = c.Year AND m.Month = c.Month AND m.ATAChapter = c.ATAChapter AND m.tReliabilityFleet_ID = c.tReliabilityFleet_ID
         WHERE   CONCAT(m.Year, '-', m.Month, '-', m.ATAChapter) NOT IN (SELECT CONCAT(Year, '-', Month, '-', ATAChapter) FROM tRelRepSystemReliabilityAlertLevelATAChapter)
+        ORDER BY m.tReliabilityFleet_ID, m.Year DESC, m.[Month], m.ATAChapter
 
         COMMIT TRANSACTION
 	END TRY
