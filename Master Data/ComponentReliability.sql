@@ -34,6 +34,29 @@ WHERE	ColumnName IN (
 		)
 AND		uMasterData_ID = @TableID
 
+----- set filters -----
+
+UPDATE	uMasterDataColumn
+SET		UseInFilter = 1
+WHERE	ColumnName IN (
+    'PartNo',
+    'PartDescription',
+    'SerialNo',
+    'RemovalReason',
+    'tReliabilityFleet_ID',
+    'tReg_ID',
+    '[AIRCRAFT SERIAL NO]',
+    'DateOfRemoval',
+    'Quarter',
+    'Year',
+    'Unscheduled',
+    'Scheduled',
+    'FailOnFit',
+    'Robbery',
+    'ConfirmedFailure'
+)
+AND		uMasterData_ID = @TableID
+
 ----- field-specific set up -----
 UPDATE	uMasterDataColumn
 SET		Name = 'Serial No.',
