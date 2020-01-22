@@ -28,7 +28,8 @@ AND		uMasterData_ID = @TableID
 ----- remove columns -----
 DELETE FROM uMasterDataColumn
 WHERE	ColumnName IN (
-			'sOrderTask_ID',
+            'sOrderTask_ID',
+			'DateOfRemoval',
             'FlightTimeComponentWasInstalledFH',
             'FlightTimeComponentWasRemovedFH'
 		)
@@ -45,7 +46,7 @@ WHERE	ColumnName IN (
     'RemovalReason',
     'tReliabilityFleet_ID',
     'tReg_ID',
-    '[AIRCRAFT SERIAL NO]',
+    'MSN',
     'DateOfRemoval',
     'Quarter',
     'Year',
@@ -83,7 +84,17 @@ WHERE	ColumnName = 'tReliabilityFleet_ID'
 AND		uMasterData_ID = @TableID
 
 UPDATE	uMasterDataColumn
-SET		Name = 'uRALBase_ID',
-		LookupColumns = 'Base'
+SET		Name = 'Base',
+		LookupColumns = 'Name'
 WHERE	ColumnName = 'uRALBase_ID'
+AND		uMasterData_ID = @TableID
+
+UPDATE	uMasterDataColumn
+SET		Name = 'Date Of Removal'
+WHERE	ColumnName = 'DateOfRemovalFormatted'
+AND		uMasterData_ID = @TableID
+
+UPDATE	uMasterDataColumn
+SET		Name = 'MSN'
+WHERE	ColumnName = 'MSN'
 AND		uMasterData_ID = @TableID

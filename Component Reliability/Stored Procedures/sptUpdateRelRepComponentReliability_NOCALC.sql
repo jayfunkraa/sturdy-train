@@ -32,7 +32,8 @@ BEGIN
 	(
 		[Lock] [bit] NOT NULL,
 		[tAsset_ID] [int] NOT NULL,
-		[DateOfRemoval] [nvarchar](50) NULL,
+		[DateOfRemoval] [datetime] NULL,
+		[DateOfRemovalFormatted] [varchar] (50) NULL,
 		[Month] [nvarchar](50) NULL,
 		[Year] [int] NULL,
 		[Quarter] [nvarchar](50) NULL,
@@ -52,7 +53,8 @@ BEGIN
 		[PartClassification] [nvarchar](50) NULL,
 		[tATA_ID] [int] NULL,
 		[ATADescription] [nvarchar](100) NULL,
-		[Registration] [nvarchar](50) NULL,
+		[tReg_ID] [nvarchar](50) NULL,
+		[MSN] [nvarchar](50) NULL,
 		[tReliabilityFleet_ID] [int] NULL,
 		[uRALBase_ID] [nvarchar](50) NULL,
 		[EmployeeClosedBy] [nvarchar](100) NULL,
@@ -71,6 +73,7 @@ BEGIN
 		Lock,
 		tAsset_ID,
 		DateOfRemoval,
+		DateOfRemovalFormatted,
 		Month,
 		Year,
 		Quarter,
@@ -90,7 +93,8 @@ BEGIN
 		PartClassification,
 		tATA_ID,
 		ATADescription,
-		Registration,
+		tReg_ID,
+		MSN,
 		tReliabilityFleet_ID,
 		uRALBase_ID,
 		EmployeeClosedBy,
@@ -107,6 +111,7 @@ BEGIN
 	SELECT	1,
 			ah.tAsset_ID,
 			ah.AttachDetachDate,
+			CONVERT(nvarchar, ah.AttachDetachDate, 103),
 			DATENAME(mm, ah.AttachDetachDate),
 			DATEPART(yyyy, ah.AttachDetachDate),
 			CONCAT('Q',DATEPART(q, ah.AttachDetachDate)),
@@ -127,7 +132,7 @@ BEGIN
 			tATA.ID,
 			tATA.Description,
 			tReg.ID,
-			tReg.Reg,
+			RegAsset.SerialNo,
 			tReg.tReliabilityFleet_ID,
 			uRALBase.ID,
 			lEmployee.ShortDisplayName,
@@ -161,6 +166,7 @@ BEGIN
 	LEFT JOIN	tDefect ON ah.tDefect_ID = tDefect.ID
 	LEFT JOIN	tATA ON tDefect.tATA_ID = tATA.ID OR tMI.tATA_ID = tATA.ID
 	LEFT JOIN	tReg ON ah.tReg_ID = tReg.ID
+	LEFT JOIN 	tAsset RegAsset ON tReg.tAsset_ID = RegAsset.ID
 	LEFT JOIN	tTechLog ON tRegJourney.tTechLog_ID = tTechLog.ID
 	LEFT JOIN	lEmployeeStamp ON sOrderTask.lEmployeeStamp_IDCarriedOut = lEmployeeStamp.ID
 	LEFT JOIN	lStamp ON lEmployeeStamp.lStamp_ID = lStamp.ID
@@ -214,6 +220,7 @@ BEGIN
 			Lock,
 			tAsset_ID,
 			DateOfRemoval,
+			DateOfRemovalFormatted,
 			Month,
 			Year,
 			Quarter,
@@ -233,7 +240,8 @@ BEGIN
 			PartClassification,
 			tATA_ID,
 			ATADescription,
-			Registration,
+			tReg_ID,
+			MSN,
 			tReliabilityFleet_ID,
 			uRALBase_ID,
 			EmployeeClosedBy,
@@ -250,40 +258,43 @@ BEGIN
 		SELECT	Lock,
 				tAsset_ID,
 				DateOfRemoval,
+				DateOfRemovalFormatted,
 				Month,
 				Year,
 				Quarter,
 				PartNo,
-				PartDescription,
-				RemovalReason,
+				ISNULL(PartDescription, '-'),
+				ISNULL(RemovalReason, '-'),
 				Scheduled,
 				Unscheduled,
 				FailOnFit,
 				ConfirmedFailure,
 				sOrderTask_ID,
-				TaskNo,
-				TechLogNo,
-				MaintenanceTaskNo,
-				DefectItemNo,
-				TaskDescription,
+				ISNULL(TaskNo, '-'),
+				ISNULL(TechLogNo, '-'),
+				ISNULL(MaintenanceTaskNo, '-'),
+				ISNULL(DefectItemNo, '-'),
+				ISNULL(TaskDescription, '-'),
 				PartClassification,
 				tATA_ID,
-				ATADescription,
-				Registration,
+				ISNULL(ATADescription, '-'),
+				tReg_ID,
+				MSN,
 				tReliabilityFleet_ID,
 				uRALBase_ID,
-				EmployeeClosedBy,
-				EmployeeStampClosedBy,
+				ISNULL(EmployeeClosedBy, '-'),
+				ISNULL(EmployeeStampClosedBy, '-'),
 				Robbery,
 				FlightTimeComponentWasInstalledFH,
-				FlightTimeComponetWasInstalledFormatted,
+				ISNULL(FlightTimeComponetWasInstalledFormatted, '-'),
 				FlightTimeComponentWasRemovedFH,
-				FlightTimeComponentWasRemovedFormatted,
+				ISNULL(FlightTimeComponentWasRemovedFormatted, '-'),
 				TSI,
-				TSIFormatted
+				ISNULL(TSIFormatted, '-')
+
 
 		FROM	@TempTable
-		WHERE	CONCAT(SerialNo,'-',PartNo) NOT IN (SELECT CONCAT(SerialNo,'-',PartNo) FROM tRelRepComponentReliability)
+		WHERE	tAsset_ID NOT IN (SELECT tAsset_ID FROM tRelRepComponentReliability)
 
 	COMMIT TRANSACTION
 	END TRY
